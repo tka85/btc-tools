@@ -1,0 +1,33 @@
+{
+  "name": "btc-utils",
+  "version": "1.0.0",
+  "description": "bitcoin command line utility scripts",
+  "main": "index.ts",
+  "scripts": {
+    "build": "rm -rf dist/* && tsc",
+    "postinstall": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tka85/btc-utils.git"
+  },
+  "author": "tka85",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tka85/btc-utils/issues"
+  },
+  "homepage": "https://github.com/tka85/btc-utils#readme",
+  "dependencies": {
+    "@types/node": "13.7.0",
+    "bip32": "2.0.5",
+    "bip39": "3.0.2",
+    "bitcoinjs-lib": "5.1.7",
+    "commander": "4.1.1",
+    "wif": "2.0.6"
+  },
+  "devDependencies": {
+    "tslint": "6.0.0",
+    "typescript": "3.7.5"
+  }
+}
