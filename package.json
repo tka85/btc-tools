@@ -23,7 +23,9 @@
     "bip32": "2.0.5",
     "bip39": "3.0.2",
     "bitcoinjs-lib": "5.1.7",
+    "bs58check": "2.1.2",
     "commander": "4.1.1",
+    "slip39": "0.1.6",
     "wif": "2.0.6"
   },
   "devDependencies": {
