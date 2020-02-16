@@ -2,6 +2,7 @@ import assert = require('assert');
 import program = require('commander');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
+import convertExtendedKey from './xpubConvert';
 
 type Row = {
     path?: string,
@@ -15,11 +16,14 @@ type Row = {
     pubkey?: string
 };
 
-function derive({ key, network, path, cols, includeRoot = false, count = 5, printStdout = false }: { key: string, network: string, path: string, cols: string, includeRoot: boolean, count: number, printStdout: boolean }) {
+function derive({ key, network, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, printStdout = false }: { key: string, network: string, path: string, cols?: string, includeRoot?: boolean, count?: number, printStdout?: boolean }) {
     assert(key, 'missing extended key');
     assert(network, 'missing network');
     assert(path || path === '', 'missing or invalid path');
     let coinNetwork: bitcoinjs.Network;
+
+    key = normalizeExtKey(key);
+
     switch (network) {
         case 'mainnet':
             coinNetwork = bitcoinjs.networks.bitcoin;
@@ -56,6 +60,35 @@ function derive({ key, network, path, cols, includeRoot = false, count = 5, prin
     return res;
 }
 
+// Converts an extended key into something bitcoinjs-lib can understand; bitcoinjs-lib only understands xprv, xpub, tprv and tpub
+function normalizeExtKey(extKey) {
+    const conversions = {
+        xprv: 'xprv',
+        yprv: 'xprv',
+        Yprv: 'xprv',
+        zprv: 'xprv',
+        Zprv: 'xprv',
+        xpub: 'xpub',
+        ypub: 'xpub',
+        Ypub: 'xpub',
+        zpub: 'xpub',
+        Zpub: 'xpub',
+        tprv: 'tprv',
+        uprv: 'tprv',
+        Uprv: 'tprv',
+        vprv: 'tprv',
+        Vprv: 'tprv',
+        tpub: 'tpub',
+        upub: 'tpub',
+        Upub: 'tpub',
+        vpub: 'tpub',
+        Vpub: 'tpub',
+    };
+    const extKeyPrefix = extKey.slice(0, 4);
+    const destFormat = conversions[extKeyPrefix];
+    assert(destFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
+    return convertExtendedKey({ sourceKey: extKey, destFormat });
+}
 /**
  * Reduces user provided path to a form usable for derivation by bitcoinjs-lib
  * "" => ""
@@ -132,10 +165,10 @@ function evalNextRow(node: any, derivationPath: string, network: bitcoinjs.Netwo
 
 if (require.main === module) {
     // used on CLI
-    program.requiredOption('-k, --key <base58key>', '(required) xprv, xpub, tprv, tpub, ...')
-        .requiredOption('-n, --network <network>', '(required) "mainnet" or "testnet"')
-        .requiredOption('-p, --path <derivation-path>', '(required) can be "" or "m" or "<number>" or "<number>/<number>/..."; for paths with hardened components, priv key is necessary')
-        .option('-C, --cols <columns-to-include>', 'comma separated list of: "path", "legacy", "p2sh_segwit", "bech32", "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
+    program.requiredOption('-k, --key <base58key>', 'xprv, xpub, tprv, tpub, ...')
+        .requiredOption('-n, --network <network>', '"mainnet" or "testnet"')
+        .requiredOption('-p, --path <derivation-path>', 'can be "" or "m" or "<number>" or "<number>/<number>/..."; for paths with hardened components, priv key is necessary')
+        .option('-C, --cols <columns-in-result>', 'comma separated list of: "path", "legacy", "p2sh_segwit", "bech32", "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
         .option('-R, --include-root', 'whether to include the root as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5);
     program.parse(process.argv);
