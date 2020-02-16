@@ -11,44 +11,53 @@ type Row = {
     xprv?: string,
     xpub?: string,
     privkey?: string,
+    depth?: string,
     pubkey?: string
 };
 
-program.requiredOption('-k, --key <base58key>', 'xprv, xpub, tprv, tpub, ...')
-    .option('-n, --network <network>', '"mainnet" or "testnet"', bitcoinjs.networks.bitcoin)
-    .requiredOption('-p, --path <derivation-path>', 'can be "" or "m" or "<number>" or "<number>/<number>/..."; for paths with hardened components, priv key is necessary')
-    .requiredOption('-C, --cols <columns-to-include>', 'comma separated list of: "path", "legacy", "p2sh_segwit", "bech32", "xprv", "xpub", "privkey", "pubkey"  (default: "path,legacy,p2sh_segwit")', 'path,legacy,p2sh_segwit')
-    .option('-R, --include-root', 'whether to include the root as well (default: false)', false)
-    .option('-c, --count <number>', 'number of addresses to derive', 5);
+function derive({ key, network, path, cols, includeRoot = false, count = 5, printStdout = false }: { key: string, network: string, path: string, cols: string, includeRoot: boolean, count: number, printStdout: boolean }) {
+    assert(key, 'missing extended key');
+    assert(network, 'missing network');
+    assert(path || path === '', 'missing or invalid path');
+    let coinNetwork: bitcoinjs.Network;
+    switch (network) {
+        case 'mainnet':
+            coinNetwork = bitcoinjs.networks.bitcoin;
+            break;
+        case 'testnet':
+            coinNetwork = bitcoinjs.networks.testnet;
+            break;
+        default:
+            throw new Error(`Invalid network specified: ${network}; expected "mainnet" or "testnet"`);
+    }
 
-program.parse(process.argv);
+    const res: Row[] = [];
 
-program.network = (program.network === 'mainnet' || program.network === undefined) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
-console.log(`>>> `, program.network);
+    const rootNode = bip32.fromBase58(key, coinNetwork);
 
-const res: Row[] = [];
+    assert(cols);
+    let colsArray = cols.split(',');
+    assert(colsArray.length);
 
-const rootNode = bip32.fromBase58(program.key, program.network);
+    if (includeRoot) {
+        res.push(evalNextRow(rootNode, '', coinNetwork, colsArray));
+    }
 
-assert(program.cols);
-program.cols = program.cols.split(',');
-assert(program.cols.length);
+    for (let i = 0; i < count; i++) {
+        const normalizedPath = normalizeBasePath(path);
+        const derivationPath = normalizedPath ? `${normalizedPath}/${i}` : `${i}`;
+        const childNode = rootNode.derivePath(derivationPath);
+        res.push(evalNextRow(childNode, derivationPath, coinNetwork, colsArray));
+    }
 
-if (program.includeRoot) {
-    res.push(evalNextRow(rootNode, ''));
+    if (printStdout) {
+        console.table(res);
+    }
+    return res;
 }
-
-for (let i = 0; i < program.count; i++) {
-    const normalizedPath = normalizeBasePath(program.path);
-    const derivationPath = normalizedPath ? `${normalizedPath}/${i}` : `${i}`;
-    const childNode = rootNode.derivePath(derivationPath);
-    res.push(evalNextRow(childNode, derivationPath));
-}
-
-console.table(res);
 
 /**
- * Reduces user provided path to a form usable for derivation
+ * Reduces user provided path to a form usable for derivation by bitcoinjs-lib
  * "" => ""
  * "m" => ""
  * "m/" => ""
@@ -57,7 +66,8 @@ console.table(res);
  * "0" => "0"
  * "/1/2/3" => "1/2/3"
  * "1/2/3" => "1/2/3"
- * @param path
+ * "1/2/3/" => "1/2/3"
+ * "/1/2/3/" => "1/2/3"
  */
 function normalizeBasePath(path: string): string {
     // Strip any leading '/'
@@ -82,21 +92,21 @@ function getP2WPKH(node: any, network?: any): string {
     return bitcoinjs.payments.p2wpkh({ pubkey: node.publicKey, network }).address;
 }
 
-function evalNextRow(node: any, derivationPath: string): Row {
+function evalNextRow(node: any, derivationPath: string, network: bitcoinjs.Network, cols: string[]): Row {
     const nextRow: Row = {};
-    for (const c of program.cols) {
+    for (const c of cols) {
         switch (c) {
             case 'path':
                 nextRow.path = `m/${derivationPath}`;
                 break;
             case 'legacy':
-                nextRow.legacy = getP2PKH(node, program.network);
+                nextRow.legacy = getP2PKH(node, network);
                 break;
             case 'p2sh_segwit':
-                nextRow.p2sh_segwit = getP2SHP2WPKH(node, program.network);
+                nextRow.p2sh_segwit = getP2SHP2WPKH(node, network);
                 break;
             case 'bech32':
-                nextRow.bech32 = getP2WPKH(node, program.network);
+                nextRow.bech32 = getP2WPKH(node, network);
                 break;
             case 'xprv':
                 nextRow.xprv = node.isNeutered() ? null : node.toBase58();
@@ -110,9 +120,27 @@ function evalNextRow(node: any, derivationPath: string): Row {
             case 'pubkey':
                 nextRow.pubkey = node.publicKey.toString('hex');
                 break;
+            case 'depth':
+                nextRow.depth = node.depth;
+                break;
             default:
                 throw new Error('Invalid column name:' + JSON.stringify(c));
         }
     }
     return nextRow;
 }
+
+if (require.main === module) {
+    // used on CLI
+    program.requiredOption('-k, --key <base58key>', '(required) xprv, xpub, tprv, tpub, ...')
+        .requiredOption('-n, --network <network>', '(required) "mainnet" or "testnet"')
+        .requiredOption('-p, --path <derivation-path>', '(required) can be "" or "m" or "<number>" or "<number>/<number>/..."; for paths with hardened components, priv key is necessary')
+        .option('-C, --cols <columns-to-include>', 'comma separated list of: "path", "legacy", "p2sh_segwit", "bech32", "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
+        .option('-R, --include-root', 'whether to include the root as well', false)
+        .option('-c, --count <number>', 'number of addresses to derive', 5);
+    program.parse(process.argv);
+    derive({ key: program.key, network: program.network, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, printStdout: true });
+}
+
+// used as a module
+export default derive;
