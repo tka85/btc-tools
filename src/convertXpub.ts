@@ -66,7 +66,7 @@ function convertExtendedKey({ sourceKey, destFormat, printStdout = false }: { so
 }
 
 if (require.main === module) {
-    // used on CLI
+    // used on command line
     program.requiredOption('-s, --source-key <base58ExtendedKey>', 'an extended key')
         .requiredOption('-d, --destination-format <extendedKeyType>', 'the format to convert the given source key into e.g. "xpub", "xprv", etc.');
     program.parse(process.argv);
