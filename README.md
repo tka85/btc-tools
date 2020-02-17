@@ -12,7 +12,7 @@ Each util can be used:
 $ npm i
 ```
 
-This will install all dependencies and build from the Typescript the corersponding JavaScript under `dist/`. 
+This will install all dependencies and build from the Typescript the corersponding JavaScript under `dist/`.
 
 All utils reside under `dist/src/*`
 
@@ -142,9 +142,11 @@ where `derivedData` is:
 ]
 ```
 
-## Util: 'xpubConvert'
+## Util: 'convertXpub'
 
-Convert from one type of extended key to another. Meaningful conversions between any types of same group:
+Convert from one type of extended key to another. Despite the name it applies to extended private and public keys.
+
+Meaningful conversions between any two of same group:
 
   * mainnet xprv: ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv']
   * mainnet xpub: ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub']
@@ -154,27 +156,27 @@ Convert from one type of extended key to another. Meaningful conversions between
 ### Usage on cli
 
 ```bash
-$ node dist/src/xpubConvert --help
+$ node dist/src/convertXpub --help
 ```
 
 #### Convert from upub to tpub
 
 ```bash
-$ node dist/src/xpubConvert -s upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -d tpub
+$ node dist/src/convertXpub -s upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -d tpub
 tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
 ```
 
 #### Convert from tpub to upub
 
 ```bash
-$ node dist/src/xpubConvert -s tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -d upub
+$ node dist/src/convertXpub -s tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -d upub
 upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa
 ```
 
 ### Usage as module
 
 ```javascript
-import convertExtendedKey from './src/xpubConvert';
+import convertExtendedKey from './src/convertXpub';
 
 const convertedExtKey = convertExtendedKey({ sourceKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', destFormat: 'tpub' });
 ```

@@ -4,9 +4,10 @@
   "description": "bitcoin command line utility scripts",
   "main": "index.ts",
   "scripts": {
-    "build": "rm -rf dist/* && tsc",
+    "build": "rm -rf dist/* && npm run tslint &&  && tsc",
+    "lint": "tslint --project tsconfig.json",
     "postinstall": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,9 @@
     "wif": "2.0.6"
   },
   "devDependencies": {
+    "@types/mocha": "7.0.1",
+    "mocha": "7.0.1",
+    "ts-node": "8.6.2",
     "tslint": "6.0.0",
     "typescript": "3.7.5"
   },

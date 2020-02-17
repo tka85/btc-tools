@@ -1,2 +1,2 @@
 export * from './src/derive';
-export * from './src/xpubConvert';
+export * from './src/convertXpub';
