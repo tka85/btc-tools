@@ -168,7 +168,7 @@ function evalNextRow(node: bip32.BIP32Interface, derivationPath: string, network
 }
 
 if (require.main === module) {
-    // used on CLI
+    // used on command line
     program.requiredOption('-k, --key <base58key>', '[xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub (20 types)')
         .requiredOption('-n, --network <network>', '"mainnet" or "testnet"')
         .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; for paths with hardened components, priv key is necessary')
