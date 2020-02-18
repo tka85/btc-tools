@@ -182,3 +182,50 @@ const convertedExtKey = convertExtendedKey({ sourceKey: 'upub57Wa4MvRPNyAgtkF2Xq
 ```
 
 where `convertedExtKey` is `tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B`.
+
+## Util: 'generate'
+
+Generates random:
+
+  * random bip39 24-word mnemonic in any one of 6 different languages (english, spanis, french, italian, japanese, korean)
+  * random bip32 seed
+  * random ext prv and pub keys (format: 'xprv', 'xpub', 'yprv', 'ypub', 'Yprv', 'Ypub', 'zprv', 'zpub', 'Zprv', 'Zpub', 'tprv', 'tpub', 'uprv', 'upub', 'Uprv', 'Upub', 'vprv', 'vpub', 'Vprv', 'Vpub')
+
+### Usage on cli
+
+```bash
+$ node dist/src/generate --help
+```
+
+#### Generate random bip39 mnemonic
+
+```bash
+$ node dist/src/ -m en
+inspire symptom sadness voice leaf slam worry cricket wave cube meat evoke vintage oval true tortoise stone airport duck cart caught ladder spy affair
+```
+
+#### Generate bip32 seed
+
+```bash
+$ node dist/src/generate -s
+2b9912a3b1f16ed40ac481b4a7c58a2e85a4da63f7399aace1b76b89f91b14b6765ba66a318e7475b5b0cbfc31d2518e4ad9be0dda00bf0d0b1196aa3c9539a2
+```
+
+#### Generate extended prv key
+
+```bash
+$ node dist/src/generate -e xprv
+xprv9s21ZrQH143K3PZLGMhS94yDTHvsukf29k47mjvcCuMhaNDwPcRB9wPm1wDit7scpH2QpEdvsoTt4eZVaeZMBZFkLfddNypDKWSygBqkVKQ
+```
+
+### Usage as module
+
+```javascript
+import { generateMnemonic, generateSeed, generateExtKey } from './src/generate';
+
+const mnemonicEn = generateMnemonic(); // 'frequent sudden grape provide become dutch series zebra village word rain rapid powder prefer actor sport young cactus swear pony mammal naive curve execute'
+const mnemonicJp = generateMnemonic('jp'); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
+const seed = generateSeed(); // '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
+const randXPub = generateExtKey('xpub'); // xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
+const randTPrv = generateExtKey('tprv'); // tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
+```
