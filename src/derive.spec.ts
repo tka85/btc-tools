@@ -7,7 +7,7 @@ describe('derive', () => {
     const tpub = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B';
     const network = 'testnet';
     const path = 'm/0';
-    const derived_0_0 = [
+    const derived00 = [
         {
             bech32: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp',
             depth: 2,
@@ -16,8 +16,8 @@ describe('derive', () => {
             path: 'm/0/0'
         }
     ];
-    const derived_0_0_custom_cols = [{ bech32: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp' }];
-    const derived_0_0_with_root = [
+    const derived00CustomCols = [{ bech32: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp' }];
+    const derived00WithRoot = [
         {
             bech32: "tb1qp30e58hrp0etgsl2q9y4tar26a93nwc0wa0zh4",
             depth: 0,
@@ -58,15 +58,15 @@ describe('derive', () => {
         throws(() => { derive({ key: tpub, network: 'testnet', path: invalidPath }) }, /Expected BIP32Path, got String ".*"/);
     });
     it('should derive correctly from tprv', () => {
-        deepEqual(derive({ key: tpriv, network, path, count: 1 }), derived_0_0);
+        deepEqual(derive({ key: tpriv, network, path, count: 1 }), derived00);
     });
     it('should derive correctly from tpub', () => {
-        deepEqual(derive({ key: tpub, network, path, count: 1 }), derived_0_0);
+        deepEqual(derive({ key: tpub, network, path, count: 1 }), derived00);
     });
     it('should derive correctly with custom columns', () => {
-        deepEqual(derive({ key: tpub, network, path, cols: 'bech32', count: 1 }), derived_0_0_custom_cols);
+        deepEqual(derive({ key: tpub, network, path, cols: 'bech32', count: 1 }), derived00CustomCols);
     });
     it('should derive correctly including root', () => {
-        deepEqual(derive({ key: tpub, network, path, includeRoot: true, count: 1 }), derived_0_0_with_root);
+        deepEqual(derive({ key: tpub, network, path, includeRoot: true, count: 1 }), derived00WithRoot);
     });
 });
