@@ -102,15 +102,15 @@ function shuffle(array) {
 if (require.main === module) {
     // used on command line
     program.option('-s, --seed', 'generate a random seed')
-        .option('-m, --mnemonic <language>', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "english","spanish","french","italian","japanese","korean"')
+        .option('-m, --mnemonic [language]', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"', 'en')
         .option('-e, --ext-key <keyFormat>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
 
     program.parse(process.argv);
     if (program.seed) {
         generateSeed(true);
-    } else if (program.mnemonic) {
-        generateMnemonic(program.mnemonic, true);
     } else if (program.extKey) {
         generateExtKey(program.extKey, true);
+    } else {
+        generateMnemonic(program.mnemonic, true);
     }
 }
