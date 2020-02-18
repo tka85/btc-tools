@@ -4,7 +4,7 @@
   "description": "bitcoin command line utility scripts",
   "main": "index.ts",
   "scripts": {
-    "build": "rm -rf dist/* && npm run tslint &&  && tsc",
+    "build": "rm -rf dist/* && npm run lint && tsc",
     "lint": "tslint --project tsconfig.json",
     "postinstall": "npm run build",
     "test": "mocha"
