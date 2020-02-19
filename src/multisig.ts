@@ -7,14 +7,56 @@
  */
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import bip39 = require('bip39');
 import program = require('commander');
 import assert = require('assert');
 import { isMainnetXpubKey, isTestnetXpubKey, MAINNET_XPUB_PREFIXES, TESTNET_XPUB_PREFIXES } from './lib/utils';
 import DerivationPath from './lib/DerivationPath';
 
-export function deriveP2SHMultisigAddresses({ threshold, xpubNodes, path, count }: { threshold: number, xpubNodes: bip32.BIP32Interface[], path: DerivationPath, count: number }): string[] {
-    const addresses = [];
+const MULTISIG = {
+    P2SH: 0, // normal msig
+    P2SH_P2WSH_P2MS: 1, // wrapped segwit msig
+    P2WSH_P2MS: 2 // native segwit
+};
+
+// Normal multisig
+function P2SH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): string {
+    return bitcoinjs.payments.p2sh({
+        redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
+    }).address;
+}
+
+// Wrapped segwit multisig
+function P2SH_P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): string {
+    return bitcoinjs.payments.p2sh({
+        redeem: bitcoinjs.payments.p2wsh({
+            redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
+        })
+    }).address;
+}
+
+// Native segwit multisig
+function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): string {
+    return bitcoinjs.payments.p2wsh({
+        redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
+    }).address;
+}
+
+export function deriveMultisigAddresses({ multisigType, threshold, xpubNodes, path, count }: { multisigType: number, threshold: number, xpubNodes: bip32.BIP32Interface[], path: DerivationPath, count: number }): string[] {
+    const multisigAddresses = [];
+    let addressFunction;
+    switch (multisigType) {
+        case MULTISIG.P2SH: // normal msig
+            addressFunction = P2SH_P2MS_MultisigAddress;
+            break;
+        case MULTISIG.P2SH_P2WSH_P2MS: // wrapped segwit msig
+            addressFunction = P2SH_P2WSH_P2MS_MultisigAddress;
+            break;
+        case MULTISIG.P2WSH_P2MS: // native segwit
+            addressFunction = P2WSH_P2MS_MultisigAddress;
+            break;
+        default:
+            throw new Error('Unknown type of multisig');
+    }
     for (let i = 0; i < count; i++) {
         const publicKeys: Buffer[] = [];
         xpubNodes.forEach(_ => {
@@ -22,14 +64,12 @@ export function deriveP2SHMultisigAddresses({ threshold, xpubNodes, path, count 
         });
         // pubkey order matters in multisig => sort them
         publicKeys.sort();
-        const { address } = bitcoinjs.payments.p2sh({
-            redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
-        });
-        console.log(`>>> [${threshold}-of-${xpubNodes.length} multisig]; PATH toString()`, path.toString(), ' / normalizedPathToString()', path.normalizedPathToString(), ' / ADDRESS', address);
-        addresses.push(address);
+        const address = addressFunction(threshold, publicKeys);
+        console.log(`>>> [${threshold}-of-${xpubNodes.length} multisig]; PATH toString()`, path.toString(), ' / normalizedPathToString()', path.normalizedPathToString(), ' / PUBKEY', publicKeys.map(_ => _.toString('hex')), ' / ADDRESS', address);
+        multisigAddresses.push(address);
         path.incrementPath();
     }
-    return addresses;
+    return multisigAddresses;
 }
 
 if (require.main === module) {
@@ -54,5 +94,7 @@ if (require.main === module) {
     const count = Number(program.count);
     assert(Number.isInteger(count), 'count should be an integer');
     const xpubNodes = xpubKeys.map(_ => bip32.fromBase58(_));
-    deriveP2SHMultisigAddresses({ threshold, xpubNodes, path, count })
+    deriveMultisigAddresses({ multisigType: MULTISIG.P2SH, threshold, xpubNodes, path, count });
+    deriveMultisigAddresses({ multisigType: MULTISIG.P2SH_P2WSH_P2MS, threshold, xpubNodes, path, count });
+    deriveMultisigAddresses({ multisigType: MULTISIG.P2WSH_P2MS, threshold, xpubNodes, path, count });
 }
