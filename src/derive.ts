@@ -26,7 +26,6 @@ function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', incl
     const network = isMainnetXpubKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     const res: Row[] = [];
     const derivationPath = new DerivationPath(path);
-    console.log(`>>> derivPath`, derivationPath.toString());
     key = normalizeExtKey(key);
 
 

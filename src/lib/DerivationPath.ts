@@ -43,7 +43,7 @@ class DerivationPath {
         }
         // Get array of all path components; contains hardened parts
         this.originalPath = path.split('/');
-        this.normalizedPath = DerivationPath.toNormalized(this.originalPath);
+        this.normalizedPath = DerivationPath.normalize(this.originalPath);
     }
 
     originalPathToString(): string {
@@ -58,7 +58,7 @@ class DerivationPath {
      * Convert string[] of non-normalized path components (i.e. can contain hardened components)
      * into numbers[] of normalized path components (i.e. all hardened components are converted into respective numbers)
      */
-    static toNormalized(inputPath: string[]): number[] {
+    static normalize(inputPath: string[]): number[] {
         const normalizedPath = [];
         inputPath.forEach(_ => {
             const hardMatch = _.match(/(\d+)['h]/);
@@ -78,6 +78,7 @@ class DerivationPath {
     toString(): string {
         return this.normalizedPath.map(_ => {
             if (_ >= DerivationPath.HARDENED_ADDR_PATH_LOWER_LIMIT) {
+                // hardened
                 return `${_ - DerivationPath.HARDENED_ADDR_PATH_LOWER_LIMIT}'`;
             }
             return `${_}`;
@@ -88,7 +89,7 @@ class DerivationPath {
      * Reset the normalizePath (number[]) using as reference the originalPath (string[])
      */
     resetPath(): void {
-        this.normalizedPath = DerivationPath.toNormalized(this.originalPath);
+        this.normalizedPath = DerivationPath.normalize(this.originalPath);
     }
 
     /**
