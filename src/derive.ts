@@ -1,8 +1,12 @@
+/**
+ * Given extendsible key and a path, it derives addresses (bip32)
+ */
 import assert = require('assert');
 import program = require('commander');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import convertExtendedKey from './convertXpub';
+import { isMainnetXpubKey, normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, } from './lib/utils';
+import DerivationPath from './lib/DerivationPath';
 
 type Row = {
     path?: string,
@@ -16,28 +20,17 @@ type Row = {
     pubkey?: string
 };
 
-function derive({ key, network, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, printStdout = false }: { key: string, network: string, path: string, cols?: string, includeRoot?: boolean, count?: number, printStdout?: boolean }) {
+function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, printStdout = false }: { key: string, path: string, cols?: string, includeRoot?: boolean, count?: number, printStdout?: boolean }) {
     assert(key, 'missing extended key');
-    assert(network, 'missing network');
     assert(path || path === '', 'missing or invalid path');
-    let coinNetwork: bitcoinjs.Network;
-
+    const network = isMainnetXpubKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+    const res: Row[] = [];
+    const derivationPath = new DerivationPath(path);
+    console.log(`>>> derivPath`, derivationPath.toString());
     key = normalizeExtKey(key);
 
-    switch (network) {
-        case 'mainnet':
-            coinNetwork = bitcoinjs.networks.bitcoin;
-            break;
-        case 'testnet':
-            coinNetwork = bitcoinjs.networks.testnet;
-            break;
-        default:
-            throw new Error(`Invalid network specified: "${network}"; expected "mainnet" or "testnet"`);
-    }
 
-    const res: Row[] = [];
-
-    const rootNode = bip32.fromBase58(key, coinNetwork);
+    const rootNode = bip32.fromBase58(key, network);
 
     assert(cols);
     const colsArray = cols.split(',');
@@ -45,87 +38,19 @@ function derive({ key, network, path, cols = 'path,depth,legacy,p2sh_segwit,bech
 
     if (includeRoot) {
         // Add a row for given ext key as well
-        res.push(evalNextRow(rootNode, '', coinNetwork, colsArray));
+        res.push(evalNextRow(rootNode, '', network, colsArray));
     }
 
     for (let i = 0; i < count; i++) {
-        // Clean up given path
-        const normalizedPath = normalizeBasePath(path);
-        const derivationPath = normalizedPath ? `${normalizedPath}/${i}` : `${i}`;
-        const childNode = rootNode.derivePath(derivationPath);
-        res.push(evalNextRow(childNode, derivationPath, coinNetwork, colsArray));
+        const childNode = rootNode.derivePath(derivationPath.toString());
+        res.push(evalNextRow(childNode, derivationPath.toString(), network, colsArray));
+        derivationPath.incrementPath();
     }
 
     if (printStdout) {
         console.table(res);
     }
     return res;
-}
-
-// Converts an extended key into something bitcoinjs-lib can understand; bitcoinjs-lib only understands xprv, xpub, tprv and tpub
-function normalizeExtKey(extKey) {
-    const conversions = {
-        xprv: 'xprv',
-        yprv: 'xprv',
-        Yprv: 'xprv',
-        zprv: 'xprv',
-        Zprv: 'xprv',
-        xpub: 'xpub',
-        ypub: 'xpub',
-        Ypub: 'xpub',
-        zpub: 'xpub',
-        Zpub: 'xpub',
-        tprv: 'tprv',
-        uprv: 'tprv',
-        Uprv: 'tprv',
-        vprv: 'tprv',
-        Vprv: 'tprv',
-        tpub: 'tpub',
-        upub: 'tpub',
-        Upub: 'tpub',
-        vpub: 'tpub',
-        Vpub: 'tpub',
-    };
-    const extKeyPrefix = extKey.slice(0, 4);
-    const destFormat = conversions[extKeyPrefix];
-    assert(destFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
-    return convertExtendedKey({ sourceKey: extKey, destFormat });
-}
-
-/**
- * Reduces user provided path to a form usable for derivation by bitcoinjs-lib
- * "" => ""
- * "m" => ""
- * "m/" => ""
- * "m/0" => "0"
- * "/0" => "0"
- * "0" => "0"
- * "/1/2/3" => "1/2/3"
- * "1/2/3" => "1/2/3"
- * "1/2/3/" => "1/2/3"
- * "/1/2/3/" => "1/2/3"
- */
-function normalizeBasePath(path: string): string {
-    // Strip any trailing '/' or any leading 'm/'
-    path = path.replace(/[/]$/, '').replace(/^m?[/]?/, '');
-    return path;
-}
-
-// Evaluate legacy address
-function getP2PKH(node: bip32.BIP32Interface, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
-    return bitcoinjs.payments.p2pkh({ pubkey: node.publicKey, network }).address;
-}
-
-// Evaluate p2sh wrapped segwit address
-function getP2SHP2WPKH(node: bip32.BIP32Interface, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
-    return bitcoinjs.payments.p2sh({
-        redeem: bitcoinjs.payments.p2wpkh({ pubkey: node.publicKey, network })
-    }).address;
-}
-
-// Evaluate native segwit (bech32) address
-function getP2WPKH(node: bip32.BIP32Interface, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
-    return bitcoinjs.payments.p2wpkh({ pubkey: node.publicKey, network }).address;
 }
 
 function evalNextRow(node: bip32.BIP32Interface, derivationPath: string, network: bitcoinjs.Network, cols: string[]): Row {
@@ -169,14 +94,13 @@ function evalNextRow(node: bip32.BIP32Interface, derivationPath: string, network
 
 if (require.main === module) {
     // used on command line
-    program.requiredOption('-k, --key <base58key>', '[xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub (20 types)')
-        .requiredOption('-n, --network <network>', '"mainnet" or "testnet"')
+    program.requiredOption('-x, --ext-key <base58key>', '[xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub (20 types)')
         .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; for paths with hardened components, priv key is necessary')
-        .option('-C, --cols <columns-in-result>', 'comma separated list of: "path", "legacy", p2sh_segwit", "bech32" (or synonym "native_segwit"), "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
+        .option('-C, --cols <column-names>', 'comma separated list of: "path", "legacy", p2sh_segwit", "bech32" (or synonym "native_segwit"), "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
         .option('-R, --include-root', 'whether to include the root as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5);
     program.parse(process.argv);
-    derive({ key: program.key, network: program.network, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, printStdout: true });
+    derive({ key: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, printStdout: true });
 }
 
 // used as a module

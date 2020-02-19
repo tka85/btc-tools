@@ -103,7 +103,7 @@ if (require.main === module) {
     // used on command line
     program.option('-s, --seed', 'generate a random seed')
         .option('-m, --mnemonic [language]', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"', 'en')
-        .option('-e, --ext-key <keyFormat>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
+        .option('-x, --ext-key <keyFormat>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
 
     program.parse(process.argv);
     if (program.seed) {

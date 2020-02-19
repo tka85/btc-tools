@@ -27,7 +27,7 @@ $ node dist/src/derive --help
 ## Util: 'derive'
 
 Derives addresses et al. given:
-  * ext key (pub or priv)
+  * ext key (pub or prv)
   * path and
   * network
 
@@ -39,12 +39,12 @@ All following examples evaluate root + 2 derived addresses for several different
 $ node dist/src/derive --help
 ```
 
-##### Path m/0
+##### Empty path
 
 ```bash
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
 ```
 
 all have same output:
@@ -59,12 +59,15 @@ all have same output:
 └─────────┴───────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
 ```
 
-##### Path m/0/0
+##### Path 0
 
 ```bash
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0/" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0/" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
 ```
 
 all have same output:
@@ -79,23 +82,30 @@ all have same output:
 └─────────┴─────────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
 ```
 
-##### Path m/0/0
+##### Hardened path
+
+Since path contains hardened component, we require extended private key.
+Hardened components are denoted by prime "'" or by "h".
 
 ```bash
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0/0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
-$ node dist/src/derive -n testnet -k tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/0" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0'" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0h" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0'" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0h" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0'" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0h" -C path,legacy,p2sh_segwit,bech32,depth -R -c 2
 ```
 
-both have same output:
+all have same output:
 
 ```
-┌─────────┬───────────┬──────────────────────────────────────┬───────────────────────────────────────┬──────────────────────────────────────────────┬───────┐
-│ (index) │   path    │                legacy                │              p2sh_segwit              │                    bech32                    │ depth │
-├─────────┼───────────┼──────────────────────────────────────┼───────────────────────────────────────┼──────────────────────────────────────────────┼───────┤
-│    0    │   'm/'    │ 'mgeNvuFj7FD6MzAYNzdUB7HpUWezFjvuud' │ '2MwGQiqSYMXwzzgorZi5V4oBJpC7AA6jsPY' │ 'tb1qp30e58hrp0etgsl2q9y4tar26a93nwc0wa0zh4' │   0   │
-│    1    │ 'm/0/0/0' │ 'ms1hxHdjepJi2iXVHWEXMr1CArP6KUT4iL' │ '2NCXZfXaJeRc4YwXYQTdk2hoMjo6voDa36k' │ 'tb1q0cvhndxl26g6jlamxfa2mge9rgtv5wvvfqyxau' │   3   │
-│    2    │ 'm/0/0/1' │ 'mkBjJ7L9Ssx5JL2g7pLvnqckZjaxi1YbG4' │ '2N1XnWGBp4PhWhJYDELrLHU8N6dx7S4LyUQ' │ 'tb1qxv6alevdx8v6ly9lvnkj2tjpc59t58zrnk0x4h' │   3   │
-└─────────┴───────────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
+┌─────────┬──────────┬──────────────────────────────────────┬───────────────────────────────────────┬──────────────────────────────────────────────┬───────┐
+│ (index) │   path   │                legacy                │              p2sh_segwit              │                    bech32                    │ depth │
+├─────────┼──────────┼──────────────────────────────────────┼───────────────────────────────────────┼──────────────────────────────────────────────┼───────┤
+│    0    │   'm/'   │ 'mgeNvuFj7FD6MzAYNzdUB7HpUWezFjvuud' │ '2MwGQiqSYMXwzzgorZi5V4oBJpC7AA6jsPY' │ 'tb1qp30e58hrp0etgsl2q9y4tar26a93nwc0wa0zh4' │   0   │
+│    1    │ "m/0'/0" │ 'n3NkSZqoPMCQN5FENxUBw4qVATbytH6FDK' │ '2NA9LWMy8Bn5QTs5CB5Z8Fbqm66oDbp8KL4' │ 'tb1qalzchqutx9f3wjln69nhkusnx5aymn8a5tyk9c' │   2   │
+│    2    │ "m/0'/1" │ 'n4Bii59dRNEVqvqkCT61Ruw9hQJYyckAQB' │ '2N7B3X9gJviqZ4uys55EGmNEhcgkRaguLKK' │ 'tb1qlzn6vxfhgkg2ph7mglggexg0ur7u2fdzhw6aen' │   2   │
+└─────────┴──────────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
 ```
 
 ### Usage as module
@@ -214,7 +224,7 @@ $ node dist/src/generate -s
 #### Generate extended prv key
 
 ```bash
-$ node dist/src/generate -e xprv
+$ node dist/src/generate -x xprv
 xprv9s21ZrQH143K3PZLGMhS94yDTHvsukf29k47mjvcCuMhaNDwPcRB9wPm1wDit7scpH2QpEdvsoTt4eZVaeZMBZFkLfddNypDKWSygBqkVKQ
 ```
 
