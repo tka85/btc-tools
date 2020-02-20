@@ -12,51 +12,47 @@ import assert = require('assert');
 import { isMainnetXpubKey, isTestnetXpubKey, MAINNET_XPUB_PREFIXES, TESTNET_XPUB_PREFIXES } from './lib/utils';
 import DerivationPath from './lib/DerivationPath';
 
-const MULTISIG = {
-    P2SH: 0, // normal msig
-    P2SH_P2WSH_P2MS: 1, // wrapped segwit msig
-    P2WSH_P2MS: 2 // native segwit
+const MULTISIGS = {
+    p2sh: P2SH_P2MS_MultisigAddress, // normal msig
+    p2shp2wsh: P2SH_P2WSH_P2MS_MultisigAddress, // wrapped segwit msig
+    p2wsh: P2WSH_P2MS_MultisigAddress // native segwit
+};
+
+type MultisigRecord = {
+    address: string,
+    type: string,
+    path?: string
 };
 
 // Normal multisig
-function P2SH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): string {
-    return bitcoinjs.payments.p2sh({
+function P2SH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): MultisigRecord {
+    const res = bitcoinjs.payments.p2sh({
         redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
-    }).address;
+    });
+    return { address: res.address, type: `p2sh-${threshold}-of-${publicKeys.length}` };
 }
 
 // Wrapped segwit multisig
-function P2SH_P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): string {
-    return bitcoinjs.payments.p2sh({
+function P2SH_P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): MultisigRecord {
+    const res = bitcoinjs.payments.p2sh({
         redeem: bitcoinjs.payments.p2wsh({
             redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
         })
-    }).address;
+    });
+    return { address: res.address, type: `p2shp2wsh-${threshold}-of-${publicKeys.length}` };
 }
 
 // Native segwit multisig
-function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): string {
-    return bitcoinjs.payments.p2wsh({
+function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): MultisigRecord {
+    const res = bitcoinjs.payments.p2wsh({
         redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys })
-    }).address;
+    });
+    return { address: res.address, type: `p2wsh-${threshold}-of-${publicKeys.length}` };
 }
 
-export function deriveMultisigAddresses({ multisigType, threshold, xpubNodes, path, count }: { multisigType: number, threshold: number, xpubNodes: bip32.BIP32Interface[], path: DerivationPath, count: number }): string[] {
-    const multisigAddresses = [];
-    let addressFunction;
-    switch (multisigType) {
-        case MULTISIG.P2SH: // normal msig
-            addressFunction = P2SH_P2MS_MultisigAddress;
-            break;
-        case MULTISIG.P2SH_P2WSH_P2MS: // wrapped segwit msig
-            addressFunction = P2SH_P2WSH_P2MS_MultisigAddress;
-            break;
-        case MULTISIG.P2WSH_P2MS: // native segwit
-            addressFunction = P2WSH_P2MS_MultisigAddress;
-            break;
-        default:
-            throw new Error('Unknown type of multisig');
-    }
+export function deriveMultisigAddresses({ multisigGenerator, threshold, xpubNodes, path, count = 5, printStdOut = false }: { multisigGenerator: Function, threshold: number, xpubNodes: bip32.BIP32Interface[], path: DerivationPath, count: number, printStdOut: boolean }): MultisigRecord[] {
+    const multisigs: MultisigRecord[] = [];
+    let nextMultisig: MultisigRecord;
     for (let i = 0; i < count; i++) {
         const publicKeys: Buffer[] = [];
         xpubNodes.forEach(_ => {
@@ -64,17 +60,22 @@ export function deriveMultisigAddresses({ multisigType, threshold, xpubNodes, pa
         });
         // pubkey order matters in multisig => sort them
         publicKeys.sort();
-        const address = addressFunction(threshold, publicKeys);
-        console.log(`>>> [${threshold}-of-${xpubNodes.length} multisig]; PATH toString()`, path.toString(), ' / normalizedPathToString()', path.normalizedPathToString(), ' / PUBKEY', publicKeys.map(_ => _.toString('hex')), ' / ADDRESS', address);
-        multisigAddresses.push(address);
+        nextMultisig = multisigGenerator(threshold, publicKeys);
+        nextMultisig.path = path.toString();
+        console.log(`>>> nextMultisigRecord`, nextMultisig);
+        multisigs.push(nextMultisig);
         path.incrementPath();
     }
-    return multisigAddresses;
+    if (printStdOut) {
+        console.table(multisigs);
+    }
+    return multisigs;
 }
 
 if (require.main === module) {
     // used on command line
-    program.requiredOption('-t, --threshold <m>', 'in an "M-of-N" multisig, threshold is the value of "M": the required number of signatures')
+    program.requiredOption('-T, --multisig-type <type>', 'one of "p2sh" (classical), "p2shp2wsh" (wrapped segwit) or "p2wsh" (native segwit)')
+        .requiredOption('-t, --threshold <m>', 'the "M" in "M-of-N" multisig i.e. the required number of signatures')
         .requiredOption('-x, --xpub-keys <xpub1,xpub2,...xpubN>', 'in an "M-of-N" multisig, should provide "N" xpub keys (all extended pub key formats supported: [xyYzZ]pub, [tuUvV]pub)')
         .requiredOption('-p, --path <derivation-path>', 'the path used to derive the addresses')
         .option('-c, --count <number>', 'number of multisig addresses to derive from given path', 5);
@@ -94,7 +95,6 @@ if (require.main === module) {
     const count = Number(program.count);
     assert(Number.isInteger(count), 'count should be an integer');
     const xpubNodes = xpubKeys.map(_ => bip32.fromBase58(_));
-    deriveMultisigAddresses({ multisigType: MULTISIG.P2SH, threshold, xpubNodes, path, count });
-    deriveMultisigAddresses({ multisigType: MULTISIG.P2SH_P2WSH_P2MS, threshold, xpubNodes, path, count });
-    deriveMultisigAddresses({ multisigType: MULTISIG.P2WSH_P2MS, threshold, xpubNodes, path, count });
+    assert(Object.keys(MULTISIGS).includes(program.multisigType), `Unknown multisig-type ${program.multisigType}. Only valid are "p2sh", "p2shp2wsh", "p2wsh"`);
+    deriveMultisigAddresses({ multisigGenerator: MULTISIGS[program.multisigType], threshold, xpubNodes, path, count, printStdOut: true });
 }
