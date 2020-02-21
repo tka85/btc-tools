@@ -3,10 +3,11 @@ import convertExtendedKey from '../convertXpub';
 import bip32 = require('bip32');
 import bitcoinjs = require('bitcoinjs-lib');
 
-export const MAINNET_XPRV_PREFIXES = ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv'];
-export const MAINNET_XPUB_PREFIXES = ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub'];
-export const TESTNET_XPRV_PREFIXES = ['tprv', 'uprv', 'Uprv', 'vprv', 'Vprv'];
-export const TESTNET_XPUB_PREFIXES = ['tpub', 'upub', 'Upub', 'vpub', 'Vpub'];
+export const BTC_MAINNET_XPRV_PREFIXES = ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv'];
+export const BTC_MAINNET_XPUB_PREFIXES = ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub'];
+export const BTC_TESTNET_XPRV_PREFIXES = ['tprv', 'uprv', 'Uprv', 'vprv', 'Vprv'];
+export const BTC_TESTNET_XPUB_PREFIXES = ['tpub', 'upub', 'Upub', 'vpub', 'Vpub'];
+export const ALL_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES).concat(BTC_TESTNET_XPRV_PREFIXES).concat(BTC_TESTNET_XPUB_PREFIXES);
 
 /**
  * Converts an extended key into corresponding format bitcoinjs-lib can understand;
@@ -68,14 +69,14 @@ export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface
  * Checks if extensible key is from mainnet based on prefix
  */
 export function isMainnetXpubKey(extKey: string): boolean {
-    return MAINNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || MAINNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
+    return BTC_MAINNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || BTC_MAINNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
 }
 
 /**
  * Checks if extensible key is from testnet based on prefix
  */
 export function isTestnetXpubKey(extKey: string): boolean {
-    return TESTNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || TESTNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
+    return BTC_TESTNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || BTC_TESTNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
 }
 
 
@@ -93,4 +94,11 @@ export function fetchNetwork(network: string): bitcoinjs.Network {
         default:
             throw new Error(`Invalid network specified: "${network}"; expected "mainnet" or "testnet"`);
     }
+}
+
+export function validateExtKey(extKey: string) {
+    if (!ALL_EXT_KEY_PREFIXES.includes(extKey.slice(0, 4))) {
+        throw new Error(`Invalid extended key "${extKey}". Recognized types: ${JSON.stringify(ALL_EXT_KEY_PREFIXES)}`);
+    }
+    assert.equal(extKey.length, 111, `Invalid extended key length ${extKey.length}`);
 }
