@@ -32,14 +32,14 @@ class DerivationPath {
      * "/1/2/3/" => "1/2/3"
      * @param path      Hardened components can be denoted with a prime symbol "'" or with a "h" e.g. 0/44h/0h/0 is same as 0/44'/0'/0
      */
-    constructor(path: string) {
+    constructor(path: string, hardenedChildren: boolean = false) {
         // drop leading 'm/', or '/' and trailing '/'
         path = path.replace(/[/]$/, '').replace(/^m?[/]?/, '');
         // Add to provided path the last part that will be getting incremented
         if (!path) {
-            path = '0';
+            path = `0${hardenedChildren ? "'" : ''}`;
         } else {
-            path += '/0';
+            path += `/0${hardenedChildren ? "'" : ''}`;
         }
         // Get array of all path components; contains hardened parts
         this.originalPath = path.split('/');

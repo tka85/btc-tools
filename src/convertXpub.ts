@@ -1,6 +1,7 @@
 import assert = require('assert');
 import program = require('commander');
 import bs58Check = require('bs58check');
+import { BTC_MAINNET_XPRV_PREFIXES, BTC_MAINNET_XPUB_PREFIXES, BTC_TESTNET_XPRV_PREFIXES, BTC_TESTNET_XPUB_PREFIXES, validateExtKey } from './lib/utils';
 
 const EXTENDED_KEY_VERSION_BYTES = {
     xprv: '0488ade4', // mainnet P2PKH or P2SH
@@ -39,10 +40,10 @@ function convertExtendedKey({ sourceKey, destFormat, printStdout = false }: { so
     assert(sourceKey, 'missing extended source key');
     assert(destFormat, 'missing destination key format');
     const meaningfulConversions = {
-        mainnetXprv: new Set(['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv']),
-        mainnetXpub: new Set(['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub']),
-        testnetXprv: new Set(['tprv', 'uprv', 'Uprv', 'vprv', 'Vprv']),
-        testnetXpub: new Set(['tpub', 'upub', 'Upub', 'vpub', 'Vpub'])
+        mainnetXprv: new Set(BTC_MAINNET_XPRV_PREFIXES),
+        mainnetXpub: new Set(BTC_MAINNET_XPUB_PREFIXES),
+        testnetXprv: new Set(BTC_TESTNET_XPRV_PREFIXES),
+        testnetXpub: new Set(BTC_TESTNET_XPUB_PREFIXES)
     };
     // TODO: throw error if we detect a meaningless conversion i.e. source and dest are not in same group
 
@@ -65,11 +66,16 @@ function convertExtendedKey({ sourceKey, destFormat, printStdout = false }: { so
     return result;
 }
 
+function validateParams() {
+    validateExtKey(program.sourceKey);
+}
+
 if (require.main === module) {
     // used on command line
     program.requiredOption('-s, --source-key <base58ExtendedKey>', 'an extended key')
-        .requiredOption('-d, --destination-format <extendedKeyType>', 'the format to convert the given source key into e.g. "xpub", "xprv", etc.');
+        .requiredOption('-d, --destination-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
     program.parse(process.argv);
+    validateParams();
     convertExtendedKey({ sourceKey: program.sourceKey, destFormat: program.destinationFormat, printStdout: true });
 }
 
