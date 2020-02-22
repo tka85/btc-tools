@@ -107,7 +107,7 @@ function validateParams(): void {
 
 if (require.main === module) {
     // used on command line
-    program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
+    program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
         .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, priv key is necessary')
         .option('-C, --cols <column-names>', 'comma separated list of: "path", "legacy", p2sh_segwit" (or synonym "wrapped_segwit"), "bech32" (or synonym "native_segwit"), "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
         .option('-R, --include-root', 'whether to include the node of the igven extended key as well', false)
