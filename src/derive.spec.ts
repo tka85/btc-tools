@@ -1,6 +1,5 @@
 import derive from './derive';
 import { throws, deepEqual } from 'assert';
-import bitcoinjs = require('bitcoinjs-lib');
 
 describe('derive', () => {
     const tprv = 'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK';
