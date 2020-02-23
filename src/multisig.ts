@@ -13,10 +13,10 @@ import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import program = require('commander');
 import assert = require('assert');
-import { validateExtKey } from './lib/utils';
+import { validateExtKey, isExtKey, isMainnetExtKey } from './lib/utils';
 import DerivationPath from './lib/DerivationPath';
 
-const MULTISIG_FUNCS = {
+export const MULTISIG_FUNCS = {
     p2sh: P2SH_P2MS_MultisigAddress, // classical msig
     p2shp2wsh: P2SH_P2WSH_P2MS_MultisigAddress, // wrapped segwit msig
     p2wsh: P2WSH_P2MS_MultisigAddress // native segwit
@@ -76,7 +76,7 @@ function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]): Mu
     };
 }
 
-function deriveMultisig({ multisigFunc, threshold, xpubNodes, path, pubKeyBuffers, count, printStdOut = false }: { multisigFunc: MultisigFunc, threshold: number, xpubNodes?: bip32.BIP32Interface[], path?: DerivationPath, pubKeyBuffers?: Buffer[], count?: number, printStdOut: boolean }): MultisigRecord[] {
+export function deriveMultisig({ multisigFunc, threshold, xpubNodes, path, pubKeyBuffers, count, printStdOut = false }: { multisigFunc: MultisigFunc, threshold: number, xpubNodes?: bip32.BIP32Interface[], path?: DerivationPath, pubKeyBuffers?: Buffer[], count?: number, printStdOut?: boolean }): MultisigRecord[] {
     const multisigResults: MultisigRecord[] = [];
 
     if (pubKeyBuffers) {
@@ -104,40 +104,45 @@ function deriveMultisig({ multisigFunc, threshold, xpubNodes, path, pubKeyBuffer
 
 function validateParams() {
     assert(Number.isInteger(+program.threshold), 'threshold should be an integer');
-    const xpubKeys = program.xpubKeys.split(',');
-    assert(Array.isArray(xpubKeys), 'ext pub keys should be supplied as a comma separated list');
-    xpubKeys.forEach(validateExtKey);
-    assert(xpubKeys.length >= +program.threshold, 'threshold should be less than number of provided ext keys');
-    assert(Number.isInteger(+program.count), 'count should be an integer');
-    assert(Object.keys(MULTISIG_FUNCS).includes(program.multisigType), `Unknown multisig-type ${program.multisigType}. Only valid are "p2sh", "p2shp2wsh", "p2wsh"`);
+    const pubKeys = program.pubKeys.split(',');
+    assert(Array.isArray(pubKeys), 'pub keys should be as a comma separated list of either public keys or xpub keys');
+    if (isExtKey(pubKeys[0])) {
+        pubKeys.forEach(validateExtKey);
+    }
+    assert(pubKeys.length >= +program.threshold, 'threshold should be less than number of provided ext keys');
+    if (program.count) {
+        assert(Number.isInteger(+program.count), 'count should be an integer');
+    }
+    assert(Object.keys(MULTISIG_FUNCS).includes(program.multisigType), `Unknown multisig-type ${program.multisigType}. Valid types are: ${JSON.stringify(Object.keys(MULTISIG_FUNCS))}`);
 }
 
 if (require.main === module) {
     // used on command line
     program.requiredOption('-T, --multisig-type <type>', 'one of "p2sh" (classical), "p2shp2wsh" (wrapped segwit), "p2wsh" (native segwit)')
         .requiredOption('-t, --threshold <m>', 'the "M" in "M-of-N" multisig i.e. the required number of signatures')
-        .option('-x, --xpub-keys <xpub1,xpub2,...xpubN>', '"N" xpub keys of the "M-of-N" multisig (to generate "--count" multisig addresses); extended pub key formats: [xyYzZ]pub, [tuUvV]pub')
-        .option('-p, --path <derivation-path>', 'the path used to derive the addresses in case xpub-keys were provided')
-        .option('-P, --pub-keys <pubkey1,pubkey2,...pubkeyN>', '"N" public keys of the "M-of-N" multisig (to generate single multisig address)')
-        .option('-c, --count <number>', 'number of multisig addresses to derive from given path', 5);
+        .option('-k, --pub-keys <pubkey1,pubkey2,...pubkeyN | xpub1,xpub2,...xpubN>', 'either "N" simple public keys or "N" xpub keys for "M-of-N" multisig; if xpub keys, then requires "--path" and optionally "--count"; extended pub key formats: [xyYzZ]pub, [tuUvV]pub')
+        .option('-p, --path <derivation-path>', '(only in case xpub keys are provided) the path used to derive the addresses')
+        .option('-c, --count <number>', '(only in case xpub keys are provided) number of multisig addresses to derive', 5);
 
     program.parse(process.argv);
     validateParams();
 
     const threshold = +program.threshold;
     const multisigFunc = MULTISIG_FUNCS[program.multisigType];
+    const pubKeys = program.pubKeys.split(',');
 
-    if (program.publicKeys) {
-        const pubKeyBuffers: Buffer[] = program.pubKeys.map(_ => Buffer.from(_, 'hex'));
-        deriveMultisig({ multisigFunc, threshold, pubKeyBuffers, printStdOut: true });
-    } else if (program.xpubKeys && program.path && program.count) {
-        const xpubNodes: bip32.BIP32Interface[] = program.xpubKeys.split(',').map(_ => bip32.fromBase58(_));
-        const path = new DerivationPath(program.path);
-        const count = +program.count;
-        deriveMultisig({ multisigFunc, threshold, xpubNodes, path, count, printStdOut: true });
+    if (pubKeys.length) {
+        if (isExtKey(pubKeys[0]) && program.path && program.count) {
+            const network = isMainnetExtKey(pubKeys[0]) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+            const xpubNodes: bip32.BIP32Interface[] = pubKeys.map(_ => bip32.fromBase58(_, network));
+            const path = new DerivationPath(program.path);
+            const count = +program.count || 5;
+            deriveMultisig({ multisigFunc, threshold, xpubNodes, path, count, printStdOut: true });
+        } else {
+            const pubKeyBuffers: Buffer[] = pubKeys.map(_ => Buffer.from(_, 'hex'));
+            deriveMultisig({ multisigFunc, threshold, pubKeyBuffers, printStdOut: true });
+        }
     } else {
-        throw new Error('Must provide either (a) "--xpub-keys" and "--path" or (b) "--pub-keys"');
+        throw new Error('Must provide either (a) "--pub-keys" of comma separated list of xpub keys list and "--path" or (b) "--pub-keys" of comma separated list of simple public keys');
     }
 }
-
-export default deriveMultisig;
