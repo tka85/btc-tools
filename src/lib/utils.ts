@@ -68,17 +68,20 @@ export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface
 /**
  * Checks if extensible key is from mainnet based on prefix
  */
-export function isMainnetXpubKey(extKey: string): boolean {
+export function isMainnetExtKey(extKey: string): boolean {
     return BTC_MAINNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || BTC_MAINNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
 }
 
 /**
  * Checks if extensible key is from testnet based on prefix
  */
-export function isTestnetXpubKey(extKey: string): boolean {
+export function isTestnetExtKey(extKey: string): boolean {
     return BTC_TESTNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || BTC_TESTNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
 }
 
+export function isExtKey(extKey: string): boolean {
+    return isTestnetExtKey(extKey) || isMainnetExtKey(extKey);
+}
 
 /**
  * Get the bitcoinjs network object for given param 'mainnet' or 'testnet'

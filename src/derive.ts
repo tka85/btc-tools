@@ -5,7 +5,7 @@ import assert = require('assert');
 import program = require('commander');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import { isMainnetXpubKey, normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, validateExtKey, } from './lib/utils';
+import { isMainnetExtKey, normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, validateExtKey, } from './lib/utils';
 import DerivationPath from './lib/DerivationPath';
 
 type Row = {
@@ -25,7 +25,7 @@ const COLUMNS = ['path', 'depth', 'legacy', 'p2sh_segwit', 'wrapped_segwit', 'be
 function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: { key: string, path: string, cols?: string, includeRoot?: boolean, count?: number, hardenedChildren: boolean, printStdout?: boolean }) {
     assert(key, 'missing extended key');
     assert(path || path === '', 'missing or invalid path');
-    const network = isMainnetXpubKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+    const network = isMainnetExtKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     const res: Row[] = [];
     const derivationPath = new DerivationPath(path, hardenedChildren);
     key = normalizeExtKey(key);
