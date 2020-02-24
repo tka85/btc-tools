@@ -1,4 +1,4 @@
-import derive from './derive';
+import { derive } from './derive';
 import { throws, deepEqual } from 'assert';
 
 describe('derive', () => {
@@ -51,7 +51,7 @@ describe('derive', () => {
             path: "m/0/0"
         }
     ];
-    const invalidTpub = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL';
+    const invalidChecksumTpub = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL';
     const invalidPath = '///';
     it('should fail if missing key', () => {
         throws(() => { derive({ key: undefined, path: '0/0', hardenedChildren: false, }) }, /missing extended key/);
@@ -59,11 +59,8 @@ describe('derive', () => {
     it('should fail if missing path', () => {
         throws(() => { derive({ key: tpub, path: undefined, hardenedChildren: false, }) }, /missing or invalid path/);
     });
-    it('should fail if key not of known type', () => {
-        throws(() => { derive({ key: 'UNKOWNtpub', path: '0/0', hardenedChildren: false, }) }, /Do not know how to convert ext key with prefix "UNKO"/);
-    });
-    it('should fail if key of known type but invalid key', () => {
-        throws(() => { derive({ key: invalidTpub, path: '0/0', hardenedChildren: false, }) }, /Invalid extended public keyError: Invalid checksum/);
+    it('should fail if key is invalid', () => {
+        throws(() => { derive({ key: invalidChecksumTpub, path: '0/0', hardenedChildren: false, }) }, /Invalid checksum/);
     });
     it('should fail if invalid path', () => {
         throws(() => { derive({ key: tpub, path: invalidPath, hardenedChildren: false, }) }, /Expected BIP32Path, got String ".*"/);

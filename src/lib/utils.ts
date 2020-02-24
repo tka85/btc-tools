@@ -1,7 +1,8 @@
 import assert = require('assert');
-import convertExtendedKey from '../convertXpub';
+import { convertExtendedKey } from '../convertXpub';
 import bip32 = require('bip32');
 import bitcoinjs = require('bitcoinjs-lib');
+import secp256k1 = require('tiny-secp256k1');
 
 export const BTC_MAINNET_XPRV_PREFIXES = ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv'];
 export const BTC_MAINNET_XPUB_PREFIXES = ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub'];
@@ -66,24 +67,6 @@ export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface
 }
 
 /**
- * Checks if extensible key is from mainnet based on prefix
- */
-export function isMainnetExtKey(extKey: string): boolean {
-    return BTC_MAINNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || BTC_MAINNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
-}
-
-/**
- * Checks if extensible key is from testnet based on prefix
- */
-export function isTestnetExtKey(extKey: string): boolean {
-    return BTC_TESTNET_XPRV_PREFIXES.includes(extKey.slice(0, 4)) || BTC_TESTNET_XPUB_PREFIXES.includes(extKey.slice(0, 4));
-}
-
-export function isExtKey(extKey: string): boolean {
-    return isTestnetExtKey(extKey) || isMainnetExtKey(extKey);
-}
-
-/**
  * Get the bitcoinjs network object for given param 'mainnet' or 'testnet'
  */
 export function fetchNetwork(network: string): bitcoinjs.Network {
@@ -99,9 +82,36 @@ export function fetchNetwork(network: string): bitcoinjs.Network {
     }
 }
 
-export function validateExtKey(extKey: string) {
-    if (!ALL_EXT_KEY_PREFIXES.includes(extKey.slice(0, 4))) {
-        throw new Error(`Invalid extended key "${extKey}". Recognized types: ${JSON.stringify(ALL_EXT_KEY_PREFIXES)}`);
+export function isValidMainnetExtKey(extKey: string): boolean {
+    let pubKeyBuff;
+    try {
+        pubKeyBuff = bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey;
+    } catch (err) {
+        return false;
     }
-    assert.equal(extKey.length, 111, `Invalid extended key length ${extKey.length}`);
+    return isValidPublicKey(pubKeyBuff.toString('hex'));
+}
+
+export function isValidTestnetExtKey(extKey: string): boolean {
+    let pubKeyBuff;
+    try {
+        pubKeyBuff = bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey;
+    } catch (err) {
+        return false;
+    }
+    return isValidPublicKey(pubKeyBuff.toString('hex'));
+}
+
+export function isValidExtKey(extKey: string, network?: bitcoinjs.Network): boolean {
+    if (network) {
+        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, network).publicKey.toString('hex'));
+    }
+    return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey.toString('hex')) || isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey.toString('hex'));
+}
+
+export function isValidPublicKey(pubKey: string | Buffer): boolean {
+    if (typeof pubKey === 'string' || pubKey instanceof String) {
+        pubKey = Buffer.from(pubKey as string, 'hex');
+    }
+    return secp256k1.isPoint(pubKey);
 }

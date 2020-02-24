@@ -2,7 +2,7 @@ import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import bip39 = require('bip39');
 import program = require('commander');
-import convertExtendedKey from './convertXpub';
+import { convertExtendedKey } from './convertXpub';
 
 const LANGS = {
     'en': 'english',
