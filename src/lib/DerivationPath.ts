@@ -1,6 +1,6 @@
 import assert = require('assert');
 
-class DerivationPath {
+export class DerivationPath {
     // All limits are inclusive
     static get NON_HARDENED_ADDR_PATH_LOWER_LIMIT() {
         return 0;
@@ -117,5 +117,3 @@ class DerivationPath {
         this.normalizedPath[this.normalizedPath.length - 1] += n;
     }
 }
-
-export default DerivationPath;

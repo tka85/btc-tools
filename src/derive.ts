@@ -5,8 +5,8 @@ import assert = require('assert');
 import program = require('commander');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import { isMainnetExtKey, normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, validateExtKey, } from './lib/utils';
-import DerivationPath from './lib/DerivationPath';
+import { normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, isValidExtKey, isValidMainnetExtKey } from './lib/utils';
+import { DerivationPath } from './lib/DerivationPath';
 
 type Row = {
     path?: string,
@@ -22,14 +22,14 @@ type Row = {
 
 const COLUMNS = ['path', 'depth', 'legacy', 'p2sh_segwit', 'wrapped_segwit', 'bech32', 'xprv', 'xpub', 'privkey', 'pubkey'];
 
-function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: { key: string, path: string, cols?: string, includeRoot?: boolean, count?: number, hardenedChildren: boolean, printStdout?: boolean }) {
+export function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: { key: string, path: string, cols?: string, includeRoot?: boolean, count?: number, hardenedChildren: boolean, printStdout?: boolean }) {
     assert(key, 'missing extended key');
     assert(path || path === '', 'missing or invalid path');
-    const network = isMainnetExtKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+    // Validation already established it's a valid ext key
+    const network = isValidMainnetExtKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     const res: Row[] = [];
     const derivationPath = new DerivationPath(path, hardenedChildren);
     key = normalizeExtKey(key);
-
     const rootNode = bip32.fromBase58(key, network);
 
     assert(cols);
@@ -94,14 +94,14 @@ function evalNextRow(node: bip32.BIP32Interface, derivationPath: string, network
 }
 
 function validateParams(): void {
-    validateExtKey(program.extKey);
+    isValidExtKey(program.extKey);
     program.cols.split(',').forEach(_ => {
         if (!COLUMNS.includes(_)) {
             throw new Error(`Unknown column "${_}"; Recognized columns: ${JSON.stringify(COLUMNS)}`)
         }
     });
     if (!Number.isInteger(+program.count)) {
-        throw new Error(`Count of derived addresses "${program.count}" is not an integer`);
+        throw new Error(`--count of derived addresses "${program.count}" is not an integer`);
     }
 }
 
@@ -117,6 +117,3 @@ if (require.main === module) {
     validateParams();
     derive({ key: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, hardenedChildren: program.hardenedChildren, printStdout: true });
 }
-
-// used as a module
-export default derive;

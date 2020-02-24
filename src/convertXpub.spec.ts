@@ -1,4 +1,4 @@
-import convertExtendedKey from './convertXpub';
+import { convertExtendedKey } from './convertXpub';
 import { equal } from 'assert';
 
 describe('convertXpub', () => {

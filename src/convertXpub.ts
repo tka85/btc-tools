@@ -1,7 +1,8 @@
 import assert = require('assert');
 import program = require('commander');
 import bs58Check = require('bs58check');
-import { BTC_MAINNET_XPRV_PREFIXES, BTC_MAINNET_XPUB_PREFIXES, BTC_TESTNET_XPRV_PREFIXES, BTC_TESTNET_XPUB_PREFIXES, validateExtKey } from './lib/utils';
+import bitcoinjs = require('bitcoinjs-lib');
+import { BTC_MAINNET_XPRV_PREFIXES, BTC_MAINNET_XPUB_PREFIXES, BTC_TESTNET_XPRV_PREFIXES, BTC_TESTNET_XPUB_PREFIXES, isValidExtKey } from './lib/utils';
 
 const EXTENDED_KEY_VERSION_BYTES = {
     xprv: '0488ade4', // mainnet P2PKH or P2SH
@@ -36,7 +37,7 @@ const EXTENDED_KEY_VERSION_BYTES = {
  * @param sourceKey     an extended key
  * @param destFormat    the format you want to convert the sourceKey into e.g. 'tpub', 'xpub' etc.
  */
-function convertExtendedKey({ sourceKey, destFormat, printStdout = false }: { sourceKey: string, destFormat: string, printStdout?: boolean }) {
+export function convertExtendedKey({ sourceKey, destFormat, printStdout = false }: { sourceKey: string, destFormat: string, printStdout?: boolean }) {
     assert(sourceKey, 'missing extended source key');
     assert(destFormat, 'missing destination key format');
     const meaningfulConversions = {
@@ -66,18 +67,15 @@ function convertExtendedKey({ sourceKey, destFormat, printStdout = false }: { so
     return result;
 }
 
-function validateParams() {
-    validateExtKey(program.sourceKey);
+function validateParams(): void {
+    isValidExtKey(program.sourceKey);
 }
 
 if (require.main === module) {
     // used on command line
-    program.requiredOption('-s, --source-key <base58ExtendedKey>', 'an extended key')
+    program.requiredOption('-s, --source-key <base58ExtendedKey>', 'an extended prv or pub key')
         .requiredOption('-d, --destination-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
     program.parse(process.argv);
     validateParams();
     convertExtendedKey({ sourceKey: program.sourceKey, destFormat: program.destinationFormat, printStdout: true });
 }
-
-// used as a module
-export default convertExtendedKey;
