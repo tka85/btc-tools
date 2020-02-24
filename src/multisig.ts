@@ -28,6 +28,7 @@ type MultisigRecord = {
     publicKeys: string[],
     scriptPubKey?: string,
     redeem: string,
+    redeemASM: string,
     path?: string
 };
 
@@ -39,7 +40,8 @@ function P2SH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[], netw
         redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys, network })
     });
     // path (if any) will be added by caller
-    return { address: res.address, type: `p2sh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), scriptPubKey: res.output.toString('hex'), redeem: res.redeem.output.toString('hex') };
+    const redeemBuff = res.redeem.output;
+    return { address: res.address, type: `p2sh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), scriptPubKey: res.output.toString('hex'), redeem: redeemBuff.toString('hex'), redeemASM: bitcoinjs.script.toASM(redeemBuff) };
 }
 
 // Wrapped segwit multisig
@@ -50,7 +52,8 @@ function P2SH_P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[]
         })
     });
     // path (if any) will be added by caller
-    return { address: res.address, type: `p2shp2wsh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), scriptPubKey: res.output.toString('hex'), redeem: res.redeem.redeem.output.toString('hex') };
+    const redeemBuff = res.redeem.redeem.output;
+    return { address: res.address, type: `p2shp2wsh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), scriptPubKey: res.output.toString('hex'), redeem: redeemBuff.toString('hex'), redeemASM: bitcoinjs.script.toASM(redeemBuff) };
 }
 
 // Native segwit multisig
@@ -59,7 +62,8 @@ function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[], net
         redeem: bitcoinjs.payments.p2ms({ m: threshold, pubkeys: publicKeys, network })
     });
     // path (if any) will be added by caller
-    return { address: res.address, type: `p2wsh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), redeem: res.redeem.output.toString('hex') };
+    const redeemBuff = res.redeem.output;
+    return { address: res.address, type: `p2wsh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), redeem: redeemBuff.toString('hex'), redeemASM: bitcoinjs.script.toASM(redeemBuff) };
 }
 
 export function deriveMultisig({ multisigFunc, threshold, network, xpubNodes, path, pubKeyBuffers, count, printStdOut = false }: { multisigFunc: MultisigFunc, threshold: number, network: bitcoinjs.Network, xpubNodes?: bip32.BIP32Interface[], path?: DerivationPath, pubKeyBuffers?: Buffer[], count?: number, printStdOut?: boolean }): MultisigRecord[] {

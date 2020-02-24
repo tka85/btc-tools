@@ -34,6 +34,7 @@ describe('multisig', () => {
                         '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'
                     ],
                     redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae',
+                    redeemASM: 'OP_2 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7 03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0 023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 OP_3 OP_CHECKMULTISIG',
                     scriptPubKey: 'a9149181389b4b877aec7d7557c4300658aa9218a68887'
                 }
             ]);
@@ -50,6 +51,7 @@ describe('multisig', () => {
                         '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'
                     ],
                     redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae',
+                    redeemASM: 'OP_2 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7 03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0 023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 OP_3 OP_CHECKMULTISIG',
                     scriptPubKey: 'a9149181389b4b877aec7d7557c4300658aa9218a68887'
                 }
             ]);
@@ -69,6 +71,7 @@ describe('multisig', () => {
                         '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'
                     ],
                     redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae',
+                    redeemASM: 'OP_2 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7 03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0 023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 OP_3 OP_CHECKMULTISIG',
                     scriptPubKey: 'a91408148c756080ea3bf0f35ee864a68cc165c892a087'
                 }
             ]);
@@ -85,6 +88,7 @@ describe('multisig', () => {
                         '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'
                     ],
                     redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae',
+                    redeemASM: 'OP_2 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7 03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0 023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 OP_3 OP_CHECKMULTISIG',
                     scriptPubKey: 'a91408148c756080ea3bf0f35ee864a68cc165c892a087'
                 }
             ]);
@@ -103,7 +107,8 @@ describe('multisig', () => {
                         '03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0',
                         '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'
                     ],
-                    redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae'
+                    redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae',
+                    redeemASM: 'OP_2 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7 03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0 023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 OP_3 OP_CHECKMULTISIG'
                 }
             ]);
         });
@@ -118,7 +123,8 @@ describe('multisig', () => {
                         '03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0',
                         '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'
                     ],
-                    redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae'
+                    redeem: '522102c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c72103db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe021023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c2977253ae',
+                    redeemASM: 'OP_2 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7 03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0 023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 OP_3 OP_CHECKMULTISIG'
                 }
             ]);
         });
