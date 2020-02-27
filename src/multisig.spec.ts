@@ -9,11 +9,9 @@ describe('multisig', () => {
     const total = 3;
 
     const pubKeys = ['02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7', '03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0', '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'];
-    const pubKeyBuffers: Buffer[] = pubKeys.map(_ => Buffer.from(_, 'hex'));
 
     const xpubKeys = ['tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B', 'tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW', 'tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32'];
-    const network = bitcoinjs.networks.testnet;
-    const xpubNodes: bip32.BIP32Interface[] = xpubKeys.map(_ => bip32.fromBase58(_, network));
+    const network = 'testnet';
     const count = 1;
     let path;
 
@@ -22,9 +20,9 @@ describe('multisig', () => {
     });
 
     describe('p2sh', () => {
-        const multisigFunc = MULTISIG_FUNCS.p2sh;
+        const multisigType = 'p2sh';
         it(`should derive a ${threshold}-of-${total} multisig address from public keys`, () => {
-            deepEqual(deriveMultisig({ multisigFunc, threshold, pubKeyBuffers, network }), [
+            deepEqual(deriveMultisig({ multisigType, threshold, pubKeys, network }), [
                 {
                     address: '2N6WamYHLh6KzBaDJeD3NumgdgnSA5qNqW2',
                     type: 'p2sh-2-of-3',
@@ -40,7 +38,7 @@ describe('multisig', () => {
             ]);
         });
         it(`should derive a ${threshold}-of-${total} multisig address from xpub keys`, () => {
-            deepEqual(deriveMultisig({ multisigFunc, threshold, xpubNodes, path, count, network }), [
+            deepEqual(deriveMultisig({ multisigType, threshold, xpubKeys, path, count, network }), [
                 {
                     address: '2N6WamYHLh6KzBaDJeD3NumgdgnSA5qNqW2',
                     path: '0/0',
@@ -59,9 +57,9 @@ describe('multisig', () => {
     });
 
     describe('p2shp2wsh', () => {
-        const multisigFunc = MULTISIG_FUNCS.p2shp2wsh;
+        const multisigType = 'p2shp2wsh';
         it(`should derive a ${threshold}-of-${total} multisig address from public keys`, () => {
-            deepEqual(deriveMultisig({ multisigFunc, threshold, pubKeyBuffers, network }), [
+            deepEqual(deriveMultisig({ multisigType, threshold, pubKeys, network }), [
                 {
                     address: '2Msyx1ZiiXmwvpf5gvJ1Xb671rgsfYRPPoH',
                     type: 'p2shp2wsh-2-of-3',
@@ -77,7 +75,7 @@ describe('multisig', () => {
             ]);
         });
         it(`should derive a ${threshold}-of-${total} multisig address from xpub keys`, () => {
-            deepEqual(deriveMultisig({ multisigFunc, threshold, xpubNodes, path, count, network }), [
+            deepEqual(deriveMultisig({ multisigType, threshold, xpubKeys, path, count, network }), [
                 {
                     address: '2Msyx1ZiiXmwvpf5gvJ1Xb671rgsfYRPPoH',
                     path: '0/0',
@@ -96,9 +94,9 @@ describe('multisig', () => {
     });
 
     describe('p2wsh', () => {
-        const multisigFunc = MULTISIG_FUNCS.p2wsh;
+        const multisigType = 'p2wsh';
         it(`should derive a ${threshold}-of-${total} multisig address from public keys`, () => {
-            deepEqual(deriveMultisig({ multisigFunc, threshold, pubKeyBuffers, network }), [
+            deepEqual(deriveMultisig({ multisigType, threshold, pubKeys, network }), [
                 {
                     address: 'tb1q2pnadjwshn72xeeh53d33hdz0rnmeseg4varj37eu0gz5tujvd9qm76w37',
                     type: 'p2wsh-2-of-3',
@@ -113,7 +111,7 @@ describe('multisig', () => {
             ]);
         });
         it(`should derive a ${threshold}-of-${total} multisig address from xpub keys`, () => {
-            deepEqual(deriveMultisig({ multisigFunc, threshold, xpubNodes, path, count, network }), [
+            deepEqual(deriveMultisig({ multisigType, threshold, xpubKeys, path, count, network }), [
                 {
                     address: 'tb1q2pnadjwshn72xeeh53d33hdz0rnmeseg4varj37eu0gz5tujvd9qm76w37',
                     path: '0/0',

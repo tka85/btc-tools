@@ -54,34 +54,34 @@ describe('derive', () => {
     const invalidChecksumTpub = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL';
     const invalidPath = '///';
     it('should fail if missing key', () => {
-        throws(() => { derive({ key: undefined, path: '0/0', hardenedChildren: false, }) }, /missing extended key/);
+        throws(() => { derive({ extKey: undefined, path: '0/0', hardenedChildren: false, }) });
     });
     it('should fail if missing path', () => {
-        throws(() => { derive({ key: tpub, path: undefined, hardenedChildren: false, }) }, /missing or invalid path/);
+        throws(() => { derive({ extKey: tpub, path: undefined, hardenedChildren: false, }) });
     });
     it('should fail if key is invalid', () => {
-        throws(() => { derive({ key: invalidChecksumTpub, path: '0/0', hardenedChildren: false, }) }, /Invalid checksum/);
+        throws(() => { derive({ extKey: invalidChecksumTpub, path: '0/0', hardenedChildren: false, }) }, 'Error: Invalid param for ext key: "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL"');
     });
     it('should fail if invalid path', () => {
-        throws(() => { derive({ key: tpub, path: invalidPath, hardenedChildren: false, }) }, /Expected BIP32Path, got String ".*"/);
+        throws(() => { derive({ extKey: tpub, path: invalidPath, hardenedChildren: false, }) }, /Expected BIP32Path, got String ".*"/);
     });
     it('should derive correctly from tprv', () => {
-        deepEqual(derive({ key: tprv, path, hardenedChildren: false, count: 1 }), derivedNonHardened);
+        deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1 }), derivedNonHardened);
     });
     it('should derive correctly from tpub', () => {
-        deepEqual(derive({ key: tpub, path, hardenedChildren: false, count: 1 }), derivedNonHardened);
+        deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, count: 1 }), derivedNonHardened);
     });
     it('should derive correctly with custom columns', () => {
-        deepEqual(derive({ key: tpub, path, cols: 'bech32', hardenedChildren: false, count: 1 }), derived00CustomCols);
+        deepEqual(derive({ extKey: tpub, path, cols: 'bech32', hardenedChildren: false, count: 1 }), derived00CustomCols);
     });
     it('should derive correctly including root', () => {
-        deepEqual(derive({ key: tpub, path, hardenedChildren: false, includeRoot: true, count: 1 }), derived00WithRoot);
+        deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, includeRoot: true, count: 1 }), derived00WithRoot);
     });
     it('should derive correctly hardened path (both formats)', () => {
-        deepEqual(derive({ key: tprv, path: hardenedPath0, hardenedChildren: false, includeRoot: false, count: 1 }), derivedHardened);
-        deepEqual(derive({ key: tprv, path: hardenedPath1, hardenedChildren: false, includeRoot: false, count: 1 }), derivedHardened);
+        deepEqual(derive({ extKey: tprv, path: hardenedPath0, hardenedChildren: false, includeRoot: false, count: 1 }), derivedHardened);
+        deepEqual(derive({ extKey: tprv, path: hardenedPath1, hardenedChildren: false, includeRoot: false, count: 1 }), derivedHardened);
     });
     it('should derive correctly hardened children', () => {
-        deepEqual(derive({ key: tprv, path, hardenedChildren: true, includeRoot: false, count: 1 }), derivedHardenedChild);
+        deepEqual(derive({ extKey: tprv, path, hardenedChildren: true, includeRoot: false, count: 1 }), derivedHardenedChild);
     });
 });

@@ -9,82 +9,82 @@ describe('convertXpub', () => {
     const Vpub = 'Vpub5dEvVGKn7251xm6joZ6ZcvRFPVTTKXf6KqtcX9m9FtiZbHKawbpNfrM5s3HasQFd3CtFtHjhbfkKCrgjSrQymgCjRdrYyMNF6FN3Wy9M59B';
 
     it('should convert correctly to tpub => tpub (identity)', () => {
-        equal(convertExtendedKey({ sourceKey: tpub, destFormat: 'tpub' }), tpub);
+        equal(convertExtendedKey({ extKey: tpub, toFormat: 'tpub' }), tpub);
     });
     it('should convert correctly to tpub => upub', () => {
-        equal(convertExtendedKey({ sourceKey: tpub, destFormat: 'upub' }), upub);
+        equal(convertExtendedKey({ extKey: tpub, toFormat: 'upub' }), upub);
     });
     it('should convert correctly to tpub => Upub', () => {
-        equal(convertExtendedKey({ sourceKey: tpub, destFormat: 'Upub' }), Upub);
+        equal(convertExtendedKey({ extKey: tpub, toFormat: 'Upub' }), Upub);
     });
     it('should convert correctly to tpub => vpub', () => {
-        equal(convertExtendedKey({ sourceKey: tpub, destFormat: 'vpub' }), vpub);
+        equal(convertExtendedKey({ extKey: tpub, toFormat: 'vpub' }), vpub);
     });
     it('should convert correctly to tpub => Vpub', () => {
-        equal(convertExtendedKey({ sourceKey: tpub, destFormat: 'Vpub' }), Vpub);
+        equal(convertExtendedKey({ extKey: tpub, toFormat: 'Vpub' }), Vpub);
     });
 
     it('should convert correctly to upub => upub (identity)', () => {
-        equal(convertExtendedKey({ sourceKey: upub, destFormat: 'upub' }), upub);
+        equal(convertExtendedKey({ extKey: upub, toFormat: 'upub' }), upub);
     });
     it('should convert correctly to upub => tpub', () => {
-        equal(convertExtendedKey({ sourceKey: upub, destFormat: 'tpub' }), tpub);
+        equal(convertExtendedKey({ extKey: upub, toFormat: 'tpub' }), tpub);
     });
     it('should convert correctly to upub => Upub', () => {
-        equal(convertExtendedKey({ sourceKey: upub, destFormat: 'Upub' }), Upub);
+        equal(convertExtendedKey({ extKey: upub, toFormat: 'Upub' }), Upub);
     });
     it('should convert correctly to upub => vpub', () => {
-        equal(convertExtendedKey({ sourceKey: upub, destFormat: 'vpub' }), vpub);
+        equal(convertExtendedKey({ extKey: upub, toFormat: 'vpub' }), vpub);
     });
     it('should convert correctly to upub => Vpub', () => {
-        equal(convertExtendedKey({ sourceKey: upub, destFormat: 'Vpub' }), Vpub);
+        equal(convertExtendedKey({ extKey: upub, toFormat: 'Vpub' }), Vpub);
     });
 
     it('should convert correctly to Upub => Upub (identity)', () => {
-        equal(convertExtendedKey({ sourceKey: Upub, destFormat: 'Upub' }), Upub);
+        equal(convertExtendedKey({ extKey: Upub, toFormat: 'Upub' }), Upub);
     });
     it('should convert correctly to Upub => tpub', () => {
-        equal(convertExtendedKey({ sourceKey: Upub, destFormat: 'tpub' }), tpub);
+        equal(convertExtendedKey({ extKey: Upub, toFormat: 'tpub' }), tpub);
     });
     it('should convert correctly to Upub => upub', () => {
-        equal(convertExtendedKey({ sourceKey: Upub, destFormat: 'upub' }), upub);
+        equal(convertExtendedKey({ extKey: Upub, toFormat: 'upub' }), upub);
     });
     it('should convert correctly to Upub => vpub', () => {
-        equal(convertExtendedKey({ sourceKey: Upub, destFormat: 'vpub' }), vpub);
+        equal(convertExtendedKey({ extKey: Upub, toFormat: 'vpub' }), vpub);
     });
     it('should convert correctly to Upub => Vpub', () => {
-        equal(convertExtendedKey({ sourceKey: Upub, destFormat: 'Vpub' }), Vpub);
+        equal(convertExtendedKey({ extKey: Upub, toFormat: 'Vpub' }), Vpub);
     });
 
     it('should convert correctly to vpub => vpub (identity)', () => {
-        equal(convertExtendedKey({ sourceKey: vpub, destFormat: 'vpub' }), vpub);
+        equal(convertExtendedKey({ extKey: vpub, toFormat: 'vpub' }), vpub);
     });
     it('should convert correctly to vpub => tpub', () => {
-        equal(convertExtendedKey({ sourceKey: vpub, destFormat: 'tpub' }), tpub);
+        equal(convertExtendedKey({ extKey: vpub, toFormat: 'tpub' }), tpub);
     });
     it('should convert correctly to vpub => upub', () => {
-        equal(convertExtendedKey({ sourceKey: vpub, destFormat: 'upub' }), upub);
+        equal(convertExtendedKey({ extKey: vpub, toFormat: 'upub' }), upub);
     });
     it('should convert correctly to vpub => Upub', () => {
-        equal(convertExtendedKey({ sourceKey: vpub, destFormat: 'Upub' }), Upub);
+        equal(convertExtendedKey({ extKey: vpub, toFormat: 'Upub' }), Upub);
     });
     it('should convert correctly to vpub => Vpub', () => {
-        equal(convertExtendedKey({ sourceKey: vpub, destFormat: 'Vpub' }), Vpub);
+        equal(convertExtendedKey({ extKey: vpub, toFormat: 'Vpub' }), Vpub);
     });
 
     it('should convert correctly to Vpub => Vpub (identity)', () => {
-        equal(convertExtendedKey({ sourceKey: Vpub, destFormat: 'Vpub' }), Vpub);
+        equal(convertExtendedKey({ extKey: Vpub, toFormat: 'Vpub' }), Vpub);
     });
     it('should convert correctly to Vpub => tpub', () => {
-        equal(convertExtendedKey({ sourceKey: Vpub, destFormat: 'tpub' }), tpub);
+        equal(convertExtendedKey({ extKey: Vpub, toFormat: 'tpub' }), tpub);
     });
     it('should convert correctly to Vpub => upub', () => {
-        equal(convertExtendedKey({ sourceKey: Vpub, destFormat: 'upub' }), upub);
+        equal(convertExtendedKey({ extKey: Vpub, toFormat: 'upub' }), upub);
     });
     it('should convert correctly to Vpub => Upub', () => {
-        equal(convertExtendedKey({ sourceKey: Vpub, destFormat: 'Upub' }), Upub);
+        equal(convertExtendedKey({ extKey: Vpub, toFormat: 'Upub' }), Upub);
     });
     it('should convert correctly to Vpub => vpub', () => {
-        equal(convertExtendedKey({ sourceKey: Vpub, destFormat: 'vpub' }), vpub);
+        equal(convertExtendedKey({ extKey: Vpub, toFormat: 'vpub' }), vpub);
     });
 });

@@ -20,17 +20,26 @@ type Row = {
     pubkey?: string
 };
 
+type deriveParams = {
+    extKey: string,
+    path: string,
+    cols?: string,
+    includeRoot?: boolean,
+    count?: number,
+    hardenedChildren: boolean,
+    printStdout?: boolean
+};
+
 const COLUMNS = ['path', 'depth', 'legacy', 'p2sh_segwit', 'wrapped_segwit', 'bech32', 'xprv', 'xpub', 'privkey', 'pubkey'];
 
-export function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: { key: string, path: string, cols?: string, includeRoot?: boolean, count?: number, hardenedChildren: boolean, printStdout?: boolean }) {
-    assert(key, 'missing extended key');
-    assert(path || path === '', 'missing or invalid path');
+export function derive({ extKey, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
+    validateParams({ extKey, cols, count });
     // Validation already established it's a valid ext key
-    const network = isValidMainnetExtKey(key) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+    const network = isValidMainnetExtKey(extKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+    extKey = normalizeExtKey(extKey);
+    const rootNode = bip32.fromBase58(extKey, network);
+    const dPath = new DerivationPath(path, hardenedChildren)
     const res: Row[] = [];
-    const derivationPath = new DerivationPath(path, hardenedChildren);
-    key = normalizeExtKey(key);
-    const rootNode = bip32.fromBase58(key, network);
 
     assert(cols);
     const colsArray = cols.split(',');
@@ -42,9 +51,9 @@ export function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32
     }
 
     for (let i = 0; i < count; i++) {
-        const childNode = rootNode.derivePath(derivationPath.toString());
-        res.push(evalNextRow(childNode, derivationPath.toString(), network, colsArray));
-        derivationPath.incrementPath();
+        const childNode = rootNode.derivePath(dPath.toString());
+        res.push(evalNextRow(childNode, dPath.toString(), network, colsArray));
+        dPath.incrementPath();
     }
 
     if (printStdout) {
@@ -53,12 +62,12 @@ export function derive({ key, path, cols = 'path,depth,legacy,p2sh_segwit,bech32
     return res;
 }
 
-function evalNextRow(node: bip32.BIP32Interface, derivationPath: string, network: bitcoinjs.Network, cols: string[]): Row {
+function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinjs.Network, cols: string[]): Row {
     const nextRow: Row = {};
     for (const c of cols) {
         switch (c) {
             case 'path':
-                nextRow.path = `m/${derivationPath}`;
+                nextRow.path = `m/${path}`;
                 break;
             case 'legacy':
                 nextRow.legacy = getP2PKH(node, network);
@@ -93,15 +102,17 @@ function evalNextRow(node: bip32.BIP32Interface, derivationPath: string, network
     return nextRow;
 }
 
-function validateParams(): void {
-    isValidExtKey(program.extKey);
-    program.cols.split(',').forEach(_ => {
+function validateParams(params): void {
+    if (!isValidExtKey(params.extKey)) {
+        throw new Error(`Invalid param for ext key: "${params.extKey}"`);
+    };
+    params.cols.split(',').forEach(_ => {
         if (!COLUMNS.includes(_)) {
             throw new Error(`Unknown column "${_}"; Recognized columns: ${JSON.stringify(COLUMNS)}`)
         }
     });
-    if (!Number.isInteger(+program.count)) {
-        throw new Error(`--count of derived addresses "${program.count}" is not an integer`);
+    if (!Number.isInteger(+params.count)) {
+        throw new Error(`--count of derived addresses "${params.count}" is not an integer`);
     }
 }
 
@@ -114,6 +125,6 @@ if (require.main === module) {
         .option('-c, --count <number>', 'number of addresses to derive', 5)
         .option('-H, --hardened-children', 'derive hardened children under given path', false);
     program.parse(process.argv);
-    validateParams();
-    derive({ key: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, hardenedChildren: program.hardenedChildren, printStdout: true });
+    validateParams({ extKey: program.extKey, cols: program.cols, count: program.count });
+    derive({ extKey: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, hardenedChildren: program.hardenedChildren, printStdout: true });
 }
