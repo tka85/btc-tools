@@ -1,3 +1,4 @@
+import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import bip39 = require('bip39');
@@ -16,6 +17,7 @@ const LANGS = {
 
 type KeyPair = {
     wif: string,
+    privKey: string
     publicKey: string
 }
 
@@ -89,9 +91,11 @@ export function generateExtKey({ extKeyType, printStdOut = false }: { extKeyType
     return extKey;
 }
 
-export function generateKeyPair({ network, printStdOut = false }: { network: bitcoinjs.Network, printStdOut?: boolean }): KeyPair {
-    const pair = bitcoinjs.ECPair.makeRandom({ network, compressed: true });
-    const res: KeyPair = { wif: pair.toWIF(), publicKey: pair.publicKey.toString('hex') };
+export function generateKeyPair({ network, printStdOut = false }: { network: string, printStdOut?: boolean }): KeyPair {
+    assert(['mainnet', 'testnet'].includes(network), `Invalid network "${network}"; only recognize "mainnet" or "testnet`);
+    const bjsNetwork: bitcoinjs.Network = network === 'mainnet' ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+    const pair = bitcoinjs.ECPair.makeRandom({ network: bjsNetwork, compressed: true });
+    const res: KeyPair = { wif: pair.toWIF(), privKey: pair.privateKey.toString('hex'), publicKey: pair.publicKey.toString('hex') };
     if (printStdOut) {
         console.table(res);
     }
@@ -119,7 +123,7 @@ if (require.main === module) {
     } else if (program.extKey) {
         generateExtKey({ extKeyType: program.extKey, printStdOut: true });
     } else if (program.keyPair) {
-        generateKeyPair({ network: fetchNetwork(program.keyPair), printStdOut: true });
+        generateKeyPair({ network: program.keyPair, printStdOut: true });
     } else if (program.mnemonic) {
         generateMnemonic({ lang: program.mnemonic, printStdOut: true });
     } else {

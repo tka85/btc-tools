@@ -105,6 +105,7 @@ export function isValidTestnetExtKey(extKey: string): boolean {
 }
 
 export function isValidExtKey(extKey: string, network?: bitcoinjs.Network): boolean {
+    extKey = normalizeExtKey(extKey);
     if (network) {
         return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, network).publicKey) || isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, network).privateKey);
     }
