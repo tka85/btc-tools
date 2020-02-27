@@ -22,6 +22,7 @@
   "dependencies": {
     "@types/node": "13.7.0",
     "bip32": "2.0.5",
+    "bip38": "3.0.0",
     "bip39": "3.0.2",
     "bitcoinjs-lib": "5.1.7",
     "bs58check": "2.1.2",

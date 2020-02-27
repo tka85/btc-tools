@@ -8,7 +8,9 @@ export const BTC_MAINNET_XPRV_PREFIXES = ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv'
 export const BTC_MAINNET_XPUB_PREFIXES = ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub'];
 export const BTC_TESTNET_XPRV_PREFIXES = ['tprv', 'uprv', 'Uprv', 'vprv', 'Vprv'];
 export const BTC_TESTNET_XPUB_PREFIXES = ['tpub', 'upub', 'Upub', 'vpub', 'Vpub'];
-export const ALL_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES).concat(BTC_TESTNET_XPRV_PREFIXES).concat(BTC_TESTNET_XPUB_PREFIXES);
+export const ALL_BTC_MAINNET_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES);
+export const ALL_BTC_TESTNET_EXT_KEY_PREFIXES = BTC_TESTNET_XPRV_PREFIXES.concat(BTC_TESTNET_XPUB_PREFIXES);
+export const ALL_BTC_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES).concat(BTC_TESTNET_XPRV_PREFIXES).concat(BTC_TESTNET_XPUB_PREFIXES);
 
 /**
  * Converts an extended key into corresponding format bitcoinjs-lib can understand;
@@ -38,9 +40,9 @@ export function normalizeExtKey(extKey) {
         Vpub: 'tpub',
     };
     const extKeyPrefix = extKey.slice(0, 4);
-    const destFormat = conversions[extKeyPrefix];
-    assert(destFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
-    return convertExtendedKey({ sourceKey: extKey, destFormat });
+    const toFormat = conversions[extKeyPrefix];
+    assert(toFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
+    return convertExtendedKey({ extKey, toFormat });
 }
 
 /**
@@ -89,7 +91,7 @@ export function isValidMainnetExtKey(extKey: string): boolean {
     } catch (err) {
         return false;
     }
-    return isValidPublicKey(pubKeyBuff.toString('hex'));
+    return isValidPublicKey(pubKeyBuff);
 }
 
 export function isValidTestnetExtKey(extKey: string): boolean {
@@ -99,14 +101,26 @@ export function isValidTestnetExtKey(extKey: string): boolean {
     } catch (err) {
         return false;
     }
-    return isValidPublicKey(pubKeyBuff.toString('hex'));
+    return isValidPublicKey(pubKeyBuff);
 }
 
 export function isValidExtKey(extKey: string, network?: bitcoinjs.Network): boolean {
     if (network) {
-        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, network).publicKey.toString('hex'));
+        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, network).publicKey) || isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, network).privateKey);
     }
-    return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey.toString('hex')) || isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey.toString('hex'));
+    try {
+        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey);
+    } catch (err) { }
+    try {
+        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey);
+    } catch (err) { }
+    try {
+        return isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).privateKey);
+    } catch (err) { }
+    try {
+        return isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).privateKey);
+    } catch (err) { }
+    return false;
 }
 
 export function isValidPublicKey(pubKey: string | Buffer): boolean {
@@ -114,4 +128,19 @@ export function isValidPublicKey(pubKey: string | Buffer): boolean {
         pubKey = Buffer.from(pubKey as string, 'hex');
     }
     return secp256k1.isPoint(pubKey);
+}
+
+export function isValidPrivateKey(privKey: string | Buffer): boolean {
+    if (typeof privKey === 'string' || privKey instanceof String) {
+        privKey = Buffer.from(privKey as string, 'hex');
+    }
+    return secp256k1.isPrivate(privKey);
+}
+
+// Fisher-Yates (in-place) shuffle
+export function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }
