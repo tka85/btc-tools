@@ -26,7 +26,7 @@ type deriveParams = {
     cols?: string,
     includeRoot?: boolean,
     count?: number,
-    hardenedChildren: boolean,
+    hardenedChildren?: boolean,
     printStdout?: boolean
 };
 

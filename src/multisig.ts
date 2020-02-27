@@ -85,20 +85,20 @@ export function deriveMultisig({ multisigType, threshold, network, xpubKeys, pat
     const multisigFunc: MultisigFunc = MULTISIG_FUNCS[multisigType];
     let xpubNodes: bip32.BIP32Interface[];
     let pubKeyBuffers: Buffer[];
-    let bjNetwork: bitcoinjs.Network;
+    let bjsNetwork: bitcoinjs.Network;
 
     if (xpubKeys) {
         // Deduce network from type of xpub keys
-        bjNetwork = xpubKeys.every(isValidMainnetExtKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
-        xpubNodes = xpubKeys && xpubKeys.map(_ => bip32.fromBase58(_, bjNetwork));
+        bjsNetwork = xpubKeys.every(isValidMainnetExtKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+        xpubNodes = xpubKeys && xpubKeys.map(_ => bip32.fromBase58(_, bjsNetwork));
     } else if (pubKeys) {
-        bjNetwork = network === 'mainnet' ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+        bjsNetwork = network === 'mainnet' ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
         pubKeyBuffers = pubKeys.map(_ => Buffer.from(_, 'hex'));
     }
 
     if (pubKeyBuffers) {
         // Generate single M-of-N multisig address from single set of N public keys
-        multisigResults.push(multisigFunc(threshold, pubKeyBuffers, bjNetwork));
+        multisigResults.push(multisigFunc(threshold, pubKeyBuffers, bjsNetwork));
     } else {
         // Generate $count M-of-N multisig addresses from N xpub keys + a path incremented $count times
         let nextMultisig: MultisigRecord;
@@ -107,7 +107,7 @@ export function deriveMultisig({ multisigType, threshold, network, xpubKeys, pat
             xpubNodes.forEach(_ => {
                 pubKeyBuffers.push(_.derivePath(path.normalizedPathToString()).publicKey);
             });
-            nextMultisig = multisigFunc(threshold, pubKeyBuffers, bjNetwork);
+            nextMultisig = multisigFunc(threshold, pubKeyBuffers, bjsNetwork);
             nextMultisig.path = path.toString();
             multisigResults.push(nextMultisig);
             path.incrementPath();
