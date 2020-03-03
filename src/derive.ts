@@ -11,13 +11,14 @@ import { DerivationPath } from './lib/DerivationPath';
 type Row = {
     path?: string,
     depth?: number,
-    legacy?: string,
-    p2sh_segwit?: string,
-    bech32?: string,
+    p2pkh?: string,
+    p2sh_p2wpkh?: string,
+    p2wpkh?: string,
     xprv?: string,
     xpub?: string,
     privkey?: string,
     pubkey?: string
+    wif?: string
 };
 
 type deriveParams = {
@@ -30,9 +31,10 @@ type deriveParams = {
     printStdout?: boolean
 };
 
-const COLUMNS = ['path', 'depth', 'legacy', 'p2sh_segwit', 'wrapped_segwit', 'bech32', 'xprv', 'xpub', 'privkey', 'pubkey'];
+const COLUMNS = ['path', 'depth', 'legacy', 'p2pkh', 'p2sh_p2wpkh', 'bech32', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'wif'];
+const DEFAULT_COLS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 
-export function derive({ extKey, path, cols = 'path,depth,legacy,p2sh_segwit,bech32', includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
+export function derive({ extKey, path, cols = DEFAULT_COLS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
     validateParams({ extKey, cols, count });
     // Validation already established it's a valid ext key
     const network = isValidMainnetExtKey(extKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
@@ -70,15 +72,15 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
                 nextRow.path = `m/${path}`;
                 break;
             case 'legacy':
-                nextRow.legacy = getP2PKH(node, network);
+            case 'p2pkh':
+                nextRow.p2pkh = getP2PKH(node, network);
                 break;
-            case 'p2sh_segwit':
-            case 'wrapped_segwit':
-                nextRow.p2sh_segwit = getP2SHP2WPKH(node, network);
+            case 'p2sh_p2wpkh':
+                nextRow.p2sh_p2wpkh = getP2SHP2WPKH(node, network);
                 break;
             case 'bech32':
-            case 'native_segwit':
-                nextRow.bech32 = getP2WPKH(node, network);
+            case 'p2wpkh':
+                nextRow.p2wpkh = getP2WPKH(node, network);
                 break;
             case 'xprv':
                 nextRow.xprv = node.isNeutered() ? null : node.toBase58();
@@ -87,13 +89,16 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
                 nextRow.xpub = node.neutered().toBase58();
                 break;
             case 'privkey':
-                nextRow.privkey = node.isNeutered() ? null : node.toWIF();
+                nextRow.privkey = node.privateKey.toString('hex');
                 break;
             case 'pubkey':
                 nextRow.pubkey = node.publicKey.toString('hex');
                 break;
             case 'depth':
                 nextRow.depth = node.depth;
+                break;
+            case 'wif':
+                nextRow.wif = node.isNeutered() ? null : node.toWIF();
                 break;
             default:
                 throw new Error('Invalid column name:' + JSON.stringify(c));
@@ -120,7 +125,7 @@ if (require.main === module) {
     // used on command line
     program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
         .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, priv key is necessary')
-        .option('-C, --cols <column-names>', 'comma separated list of: "path", "legacy", p2sh_segwit" (or synonym "wrapped_segwit"), "bech32" (or synonym "native_segwit"), "xprv", "xpub", "privkey", "pubkey", "depth"', 'path,depth,legacy,p2sh_segwit,bech32')
+        .option('-C, --cols <column-names>', 'comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey"', DEFAULT_COLS)
         .option('-R, --include-root', 'whether to include the node of the igven extended key as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5)
         .option('-H, --hardened-children', 'derive hardened children under given path', false);
