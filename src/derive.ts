@@ -18,7 +18,8 @@ type Row = {
     xpub?: string,
     privkey?: string,
     pubkey?: string
-    wif?: string
+    wif?: string,
+    fingerprint?: string
 };
 
 type deriveParams = {
@@ -31,7 +32,7 @@ type deriveParams = {
     printStdout?: boolean
 };
 
-const COLUMNS = ['path', 'depth', 'legacy', 'p2pkh', 'p2sh_p2wpkh', 'bech32', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'wif'];
+const COLUMNS = ['path', 'depth', 'legacy', 'p2pkh', 'p2sh_p2wpkh', 'bech32', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'wif', 'fingerprint'];
 const DEFAULT_COLS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 
 export function derive({ extKey, path, cols = DEFAULT_COLS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
@@ -99,6 +100,9 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
                 break;
             case 'wif':
                 nextRow.wif = node.isNeutered() ? null : node.toWIF();
+                break;
+            case 'fingerprint':
+                nextRow.fingerprint = node.fingerprint.toString('hex');
                 break;
             default:
                 throw new Error('Invalid column name:' + JSON.stringify(c));
