@@ -3,6 +3,7 @@ import { convertExtendedKey } from '../convertXpub';
 import bip32 = require('bip32');
 import bitcoinjs = require('bitcoinjs-lib');
 import secp256k1 = require('tiny-secp256k1');
+import bs58Check = require('bs58check');
 
 export const BTC_MAINNET_XPRV_PREFIXES = ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv'];
 export const BTC_MAINNET_XPUB_PREFIXES = ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub'];
@@ -111,16 +112,20 @@ export function isValidExtKey(extKey: string, network?: bitcoinjs.Network): bool
     }
     try {
         return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey);
-    } catch (err) { }
+    } /* tslint:disable:no-empty */
+    catch (err) { }
     try {
         return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey);
-    } catch (err) { }
+    } /* tslint:disable:no-empty */
+    catch (err) { }
     try {
         return isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).privateKey);
-    } catch (err) { }
+    } /* tslint:disable:no-empty */
+    catch (err) { }
     try {
         return isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).privateKey);
-    } catch (err) { }
+    } /* tslint:disable:no-empty */
+    catch (err) { }
     return false;
 }
 
@@ -138,10 +143,17 @@ export function isValidPrivateKey(privKey: string | Buffer): boolean {
     return secp256k1.isPrivate(privKey);
 }
 
-// Fisher-Yates (in-place) shuffle
-export function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+export function WIF2privKey(wif: string): Buffer {
+    // First decode WIF; decoded form is without checksum
+    let keyBuffer = bs58Check.decode(wif);
+    // Drop version byte (0xEF for testnet, 0x80 for mainnet)
+    keyBuffer = keyBuffer.subarray(1, keyBuffer.length);
+    // If still not 32 bytes, means it has compression byte; drop it too
+    if (keyBuffer.length !== 32) {
+        keyBuffer = keyBuffer.subarray(0, keyBuffer.length - 1);
+        if (keyBuffer.length !== 32) {
+            throw new Error('Invalid private key length');
+        }
     }
+    return keyBuffer;
 }
