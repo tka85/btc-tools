@@ -47,26 +47,56 @@ export function normalizeExtKey(extKey) {
 }
 
 /**
- * Evaluate legacy address from HD node
+ * Evaluate legacy address from HD node or ECPair or public key in hex as string or public key buffer
  */
-export function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
-    return bitcoinjs.payments.p2pkh({ pubkey: from.publicKey, network }).address;
+export function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+    let pubkey;
+    if (typeof from === 'string' || from instanceof String) {
+        pubkey = Buffer.from(from as string, 'hex');
+    } else if (Buffer.isBuffer(from)) {
+        // Already a pubkey buffer
+        pubkey = from;
+    } else {
+        // HD node or ECPair
+        pubkey = from.publicKey;
+    }
+    return bitcoinjs.payments.p2pkh({ pubkey, network }).address;
 }
 
 /**
- * Evaluate p2sh wrapped segwit address from HD node
+ * Evaluate p2sh wrapped segwit address from HD node or ECPair or public key in hex as string or public key buffer
  */
-export function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+export function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+    let pubkey;
+    if (typeof from === 'string' || from instanceof String) {
+        pubkey = Buffer.from(from as string, 'hex');
+    } else if (Buffer.isBuffer(from)) {
+        // Already a pubkey buffer
+        pubkey = from;
+    } else {
+        // HD node or ECPair
+        pubkey = from.publicKey;
+    }
     return bitcoinjs.payments.p2sh({
-        redeem: bitcoinjs.payments.p2wpkh({ pubkey: from.publicKey, network })
+        redeem: bitcoinjs.payments.p2wpkh({ pubkey, network })
     }).address;
 }
 
 /**
- * Evaluate native segwit (bech32) address from HD node
+ * Evaluate native segwit (bech32) address from HD node or ECPair or public key in hex as string or public key buffer
  */
-export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
-    return bitcoinjs.payments.p2wpkh({ pubkey: from.publicKey, network }).address;
+export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+    let pubkey;
+    if (typeof from === 'string' || from instanceof String) {
+        pubkey = Buffer.from(from as string, 'hex');
+    } else if (Buffer.isBuffer(from)) {
+        // Already a pubkey buffer
+        pubkey = from;
+    } else {
+        // HD node or ECPair
+        pubkey = from.publicKey;
+    }
+    return bitcoinjs.payments.p2wpkh({ pubkey, network }).address;
 }
 
 export function isValidMainnetExtKey(extKey: string): boolean {
