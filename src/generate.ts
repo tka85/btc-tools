@@ -4,7 +4,7 @@ import bip32 = require('bip32');
 import bip39 = require('bip39');
 import program = require('commander');
 import { convertExtendedKey } from './convertXpub';
-import { ALL_BTC_MAINNET_EXT_KEY_PREFIXES, fetchNetwork } from './lib/utils';
+import { ALL_BTC_MAINNET_EXT_KEY_PREFIXES } from './lib/utils';
 import shuffle = require('crypto-shuffle');
 
 const LANGS = {
