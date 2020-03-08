@@ -40,7 +40,7 @@ const DEFAULT_COLS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 
 export function derive({ extKey, path, cols = DEFAULT_COLS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
     validateParams({ extKey, cols, count });
-    // Validation already established it's a valid ext key
+    // Already established it's a valid ext key; decide which network
     const network = isValidMainnetExtKey(extKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     extKey = normalizeExtKey(extKey);
     const rootNode = bip32.fromBase58(extKey, network);

@@ -69,24 +69,9 @@ export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface
     return bitcoinjs.payments.p2wpkh({ pubkey: from.publicKey, network }).address;
 }
 
-/**
- * Get the bitcoinjs network object for given param 'mainnet' or 'testnet'
- */
-export function fetchNetwork(network: string): bitcoinjs.Network {
-    switch (network) {
-        case 'mainnet':
-            return bitcoinjs.networks.bitcoin;
-            break;
-        case 'testnet':
-            return bitcoinjs.networks.testnet;
-            break;
-        default:
-            throw new Error(`Invalid network specified: "${network}"; expected "mainnet" or "testnet"`);
-    }
-}
-
 export function isValidMainnetExtKey(extKey: string): boolean {
     let pubKeyBuff;
+    extKey = normalizeExtKey(extKey);
     try {
         pubKeyBuff = bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey;
     } catch (err) {
@@ -97,6 +82,7 @@ export function isValidMainnetExtKey(extKey: string): boolean {
 
 export function isValidTestnetExtKey(extKey: string): boolean {
     let pubKeyBuff;
+    extKey = normalizeExtKey(extKey);
     try {
         pubKeyBuff = bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey;
     } catch (err) {
