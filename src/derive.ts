@@ -11,13 +11,16 @@ import { DerivationPath } from './lib/DerivationPath';
 type Row = {
     path?: string,
     depth?: number,
+    legacy?: string, // synonym for p2pkh
     p2pkh?: string,
     p2sh_p2wpkh?: string,
+    bech32?: string, // synonym for p2wpkh
     p2wpkh?: string,
     xprv?: string,
     xpub?: string,
     privkey?: string,
-    pubkey?: string
+    pubkey?: string,
+    pubkey_hash?: string,
     wif?: string,
     fingerprint?: string
 };
@@ -32,7 +35,7 @@ type deriveParams = {
     printStdout?: boolean
 };
 
-const COLUMNS = ['path', 'depth', 'legacy', 'p2pkh', 'p2sh_p2wpkh', 'bech32', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'wif', 'fingerprint'];
+const COLUMNS = ['path', 'depth', 'legacy', 'p2pkh', 'p2sh_p2wpkh', 'bech32', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
 const DEFAULT_COLS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 
 export function derive({ extKey, path, cols = DEFAULT_COLS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
@@ -72,14 +75,18 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
             case 'path':
                 nextRow.path = `m/${path}`;
                 break;
-            case 'legacy':
+            case 'legacy': // synonym for 'p2pkh'
+                nextRow.legacy = getP2PKH(node, network);
+                break;
             case 'p2pkh':
                 nextRow.p2pkh = getP2PKH(node, network);
                 break;
             case 'p2sh_p2wpkh':
                 nextRow.p2sh_p2wpkh = getP2SHP2WPKH(node, network);
                 break;
-            case 'bech32':
+            case 'bech32': // synonym for 'p2wpkh'
+                nextRow.bech32 = getP2WPKH(node, network);
+                break;
             case 'p2wpkh':
                 nextRow.p2wpkh = getP2WPKH(node, network);
                 break;
@@ -94,6 +101,9 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
                 break;
             case 'pubkey':
                 nextRow.pubkey = node.publicKey.toString('hex');
+                break;
+            case 'pubkey_hash':
+                nextRow.pubkey_hash = bitcoinjs.crypto.hash160(node.publicKey).toString('hex');
                 break;
             case 'depth':
                 nextRow.depth = node.depth;
@@ -129,7 +139,7 @@ if (require.main === module) {
     // used on command line
     program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
         .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, priv key is necessary')
-        .option('-C, --cols <column-names>', 'comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey"', DEFAULT_COLS)
+        .option('-C, --cols <column-names>', 'comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', DEFAULT_COLS)
         .option('-R, --include-root', 'whether to include the node of the igven extended key as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5)
         .option('-H, --hardened-children', 'derive hardened children under given path', false);
