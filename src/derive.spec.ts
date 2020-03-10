@@ -16,18 +16,21 @@ describe('derive', () => {
         pubkey: '02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7',
         wif: 'cTiN5q13XR9ebmqfXbaCbz2x6C6inEJWqoJ5jP4CCw98ZCJ4gkuN'
     }];
-    const derivedNonHardenedNotNeuteredAllData = [{
-        p2wpkh: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp',
+    const derivedNonHardenedNotNeuteredAllColumns = [{
+        path: 'm/0/0',
         depth: 2,
-        fingerprint: 'd95fc47e',
         p2pkh: 'n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9',
         p2sh_p2wpkh: '2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp',
-        path: 'm/0/0',
-        pubkey: '02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7',
-        wif: 'cTiN5q13XR9ebmqfXbaCbz2x6C6inEJWqoJ5jP4CCw98ZCJ4gkuN',
-        privkey: 'b6f762e107af1dd4c73f7f1ce84298d71ec07a0a66fb8d8f24551f99435af082',
+        p2wpkh: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp',
         xprv: 'tprv8etcjmQgEyf5nAsLDRee1pYNZKNppSMguV9hb4w1LE39FcwyrXJmSBoz9Q4X7soMJrZT97Ynv4kAxpm7tQy55dmvuKyxWH6LpbmBWAQQ2SW',
-        xpub: 'tpubDBaetBSvPMLkfdu875KERECV8LtkymYbUnkUsayJkVqY67CkUv8McgRrKX9aGuf23GQjr5BLUzQzirpbX676mSr5ExrG6FtPKEMuyP88AMu'
+        xpub: 'tpubDBaetBSvPMLkfdu875KERECV8LtkymYbUnkUsayJkVqY67CkUv8McgRrKX9aGuf23GQjr5BLUzQzirpbX676mSr5ExrG6FtPKEMuyP88AMu',
+        privkey: 'b6f762e107af1dd4c73f7f1ce84298d71ec07a0a66fb8d8f24551f99435af082',
+        pubkey: '02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7',
+        pubkey_hash: 'd95fc47eada9e4c3cf59a2cbf9e96517c3ba2efa',
+        wif: 'cTiN5q13XR9ebmqfXbaCbz2x6C6inEJWqoJ5jP4CCw98ZCJ4gkuN',
+        fingerprint: 'd95fc47e',
+        legacy: 'n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9',
+        bech32: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp'
     }];
     const derivedNonHardenedNeutered = [{
         p2wpkh: 'tb1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th690vysp',
@@ -93,7 +96,7 @@ describe('derive', () => {
         deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1 }), derivedNonHardenedNotNeutered);
     });
     it('should derive correctly from tprv', () => {
-        deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,xprv,xpub,wif,privkey,pubkey,fingerprint' }), derivedNonHardenedNotNeuteredAllData);
+        deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all' }), derivedNonHardenedNotNeuteredAllColumns);
     });
     it('should derive correctly from tpub', () => {
         deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, count: 1 }), derivedNonHardenedNeutered);
