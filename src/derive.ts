@@ -35,11 +35,16 @@ type deriveParams = {
     printStdout?: boolean
 };
 
-const COLUMNS = ['path', 'depth', 'legacy', 'p2pkh', 'p2sh_p2wpkh', 'bech32', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
-const DEFAULT_COLS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
+const COLUMNS = ['path', 'depth', 'p2pkh', 'p2sh_p2wpkh', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
+const COLUMN_SYNONYMS = ['legacy', 'bech32',];
+const DEFAULT_COLUMNS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
+const ALL_COLUMNS = COLUMNS.concat(COLUMN_SYNONYMS);
 
-export function derive({ extKey, path, cols = DEFAULT_COLS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
+export function derive({ extKey, path, cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
     validateParams({ extKey, cols, count });
+    if (cols === 'all') {
+        cols = ALL_COLUMNS.join(',');
+    }
     // Already established it's a valid ext key; decide which network
     const network = isValidMainnetExtKey(extKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     extKey = normalizeExtKey(extKey);
@@ -126,8 +131,8 @@ function validateParams(params): void {
         throw new Error(`Invalid param for ext key: "${params.extKey}"`);
     };
     params.cols.split(',').forEach(_ => {
-        if (!COLUMNS.includes(_)) {
-            throw new Error(`Unknown column "${_}"; Recognized columns: ${JSON.stringify(COLUMNS)}`)
+        if (_ !== 'all' && !COLUMNS.includes(_) && !COLUMN_SYNONYMS.includes(_)) {
+            throw new Error(`Unknown column "${_}"; Recognized columns: ${JSON.stringify(ALL_COLUMNS)}`)
         }
     });
     if (!Number.isInteger(+params.count)) {
@@ -139,11 +144,14 @@ if (require.main === module) {
     // used on command line
     program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
         .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, priv key is necessary')
-        .option('-C, --cols <column-names>', 'comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', DEFAULT_COLS)
+        .option('-C, --cols <column-names>', '"all" or comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', DEFAULT_COLUMNS)
         .option('-R, --include-root', 'whether to include the node of the igven extended key as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5)
         .option('-H, --hardened-children', 'derive hardened children under given path', false);
     program.parse(process.argv);
+    if (program.cols === 'all') {
+        program.cols = ALL_COLUMNS.join(',');
+    }
     validateParams({ extKey: program.extKey, cols: program.cols, count: program.count });
     derive({ extKey: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, hardenedChildren: program.hardenedChildren, printStdout: true });
 }
