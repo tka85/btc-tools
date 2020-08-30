@@ -32,7 +32,7 @@ type deriveParams = {
     includeRoot?: boolean,
     count?: number,
     hardenedChildren?: boolean,
-    printStdout?: boolean
+    output?: 'table' | 'json'
 };
 
 const COLUMNS = ['path', 'depth', 'p2pkh', 'p2sh_p2wpkh', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
@@ -40,7 +40,7 @@ const COLUMN_SYNONYMS = ['legacy', 'bech32',];
 const DEFAULT_COLUMNS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 const ALL_COLUMNS = COLUMNS.concat(COLUMN_SYNONYMS);
 
-export function derive({ extKey, path, cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, printStdout = false }: deriveParams) {
+export function derive({ extKey, path, cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null }: deriveParams) {
     validateParams({ extKey, cols, count });
     if (cols === 'all') {
         cols = ALL_COLUMNS.join(',');
@@ -50,7 +50,7 @@ export function derive({ extKey, path, cols = DEFAULT_COLUMNS, includeRoot = fal
     extKey = normalizeExtKey(extKey);
     const rootNode = bip32.fromBase58(extKey, network);
     const dPath = new DerivationPath(path, hardenedChildren)
-    const res: Row[] = [];
+    const result: Row[] = [];
 
     assert(cols);
     const colsArray = cols.split(',');
@@ -58,19 +58,25 @@ export function derive({ extKey, path, cols = DEFAULT_COLUMNS, includeRoot = fal
 
     if (includeRoot) {
         // Add a row for given ext key as well
-        res.push(evalNextRow(rootNode, '', network, colsArray));
+        result.push(evalNextRow(rootNode, '', network, colsArray));
     }
 
     for (let i = 0; i < count; i++) {
         const childNode = rootNode.derivePath(dPath.toString());
-        res.push(evalNextRow(childNode, dPath.toString(), network, colsArray));
+        result.push(evalNextRow(childNode, dPath.toString(), network, colsArray));
         dPath.incrementPath();
     }
 
-    if (printStdout) {
-        console.table(res);
+    switch (output) {
+        case 'table':
+            console.table(result);
+            return;
+        case 'json':
+            console.log(result);
+            return;
+        default:
+            return result;
     }
-    return res;
 }
 
 function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinjs.Network, cols: string[]): Row {
@@ -102,7 +108,7 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
                 nextRow.xpub = node.neutered().toBase58();
                 break;
             case 'privkey':
-                nextRow.privkey = node.privateKey.toString('hex');
+                nextRow.privkey = node.privateKey && node.privateKey.toString('hex') || null;
                 break;
             case 'pubkey':
                 nextRow.pubkey = node.publicKey.toString('hex');
@@ -138,6 +144,9 @@ function validateParams(params): void {
     if (!Number.isInteger(+params.count)) {
         throw new Error(`--count of derived addresses "${params.count}" is not an integer`);
     }
+    if (params.output && !['table', 'json'].includes(params.output)) {
+        throw new Error(`--output format valid values are "table" or "json"`);
+    }
 }
 
 if (require.main === module) {
@@ -147,11 +156,12 @@ if (require.main === module) {
         .option('-C, --cols <column-names>', '"all" or comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', DEFAULT_COLUMNS)
         .option('-R, --include-root', 'whether to include the node of the igven extended key as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5)
-        .option('-H, --hardened-children', 'derive hardened children under given path', false);
+        .option('-H, --hardened-children', 'derive hardened children under given path', false)
+        .option('-o, --output <format>', 'format for printing results are "table" (default) or "json"', 'table');
     program.parse(process.argv);
     if (program.cols === 'all') {
         program.cols = ALL_COLUMNS.join(',');
     }
-    validateParams({ extKey: program.extKey, cols: program.cols, count: program.count });
-    derive({ extKey: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, hardenedChildren: program.hardenedChildren, printStdout: true });
+    validateParams({ extKey: program.extKey, cols: program.cols, count: program.count, output: program.output });
+    derive({ extKey: program.extKey, path: program.path, cols: program.cols, includeRoot: program.includeRoot, count: program.count, hardenedChildren: program.hardenedChildren, output: program.output });
 }

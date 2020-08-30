@@ -41,9 +41,9 @@ export function normalizeExtKey(extKey) {
         Vpub: 'tpub',
     };
     const extKeyPrefix = extKey.slice(0, 4);
-    const toFormat = conversions[extKeyPrefix];
-    assert(toFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
-    return convertExtendedKey({ extKey, toFormat });
+    const targetFormat = conversions[extKeyPrefix];
+    assert(targetFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
+    return convertExtendedKey({ extKey, targetFormat });
 }
 
 /**

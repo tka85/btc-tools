@@ -25,12 +25,13 @@ type KeyPair = {
 /**
  * @return {string} mnemonic    a random mnemonic in specified language
  */
-export function generateMnemonic({ lang = 'en', printStdOut = false }: { lang?: 'en' | 'es' | 'fr' | 'it' | 'jp' | 'ko', printStdOut?: boolean }): string {
+export function generateMnemonic({ lang = 'en', output = false }: { lang?: 'en' | 'es' | 'fr' | 'it' | 'jp' | 'ko', output?: boolean }): string {
     const language = LANGS[lang];
     shuffle(bip39.wordlists[language]);
     const mnemonic = bip39.wordlists[language].slice(0, 24).join(' ');
-    if (printStdOut) {
+    if (output) {
         console.log(mnemonic);
+        return;
     }
     return mnemonic;
 }
@@ -38,11 +39,12 @@ export function generateMnemonic({ lang = 'en', printStdOut = false }: { lang?: 
 /**
  * @return {string} seed    a random seed in hex
  */
-export function generateSeed(printStdOut: boolean = false): string {
+export function generateSeed(output: boolean = false): string {
     const mnemonic = generateMnemonic({ lang: 'en' });
     const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-    if (printStdOut) {
+    if (output) {
         console.log(seed);
+        return;
     }
     return seed;
 }
@@ -50,7 +52,7 @@ export function generateSeed(printStdOut: boolean = false): string {
 /**
  * @return {string} extKey    a random ext key in specific format
  */
-export function generateExtKey({ extKeyType, printStdOut = false }: { extKeyType: 'xprv' | 'xpub' | 'yprv' | 'ypub' | 'Yprv' | 'Ypub' | 'zprv' | 'zpub' | 'Zprv' | 'Zpub' | 'tprv' | 'tpub' | 'uprv' | 'upub' | 'Uprv' | 'Upub' | 'vprv' | 'vpub' | 'Vprv' | 'Vpub', printStdOut?: boolean }): string {
+export function generateExtKey({ extKeyType, output = false }: { extKeyType: 'xprv' | 'xpub' | 'yprv' | 'ypub' | 'Yprv' | 'Ypub' | 'zprv' | 'zpub' | 'Zprv' | 'Zpub' | 'tprv' | 'tpub' | 'uprv' | 'upub' | 'Uprv' | 'Upub' | 'vprv' | 'vpub' | 'Vprv' | 'Vpub', output?: boolean }): string {
     const network = ALL_BTC_MAINNET_EXT_KEY_PREFIXES.includes(extKeyType) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     const rootNode = generateBIP32Root(network);
     let extKey;
@@ -67,7 +69,7 @@ export function generateExtKey({ extKeyType, printStdOut = false }: { extKeyType
         case 'Uprv':
         case 'vprv':
         case 'Vprv':
-            extKey = convertExtendedKey({ extKey: rootNode.toBase58(), toFormat: extKeyType });
+            extKey = convertExtendedKey({ extKey: rootNode.toBase58(), targetFormat: extKeyType });
             break;
         case 'xpub':
         case 'tpub':
@@ -81,26 +83,28 @@ export function generateExtKey({ extKeyType, printStdOut = false }: { extKeyType
         case 'Upub':
         case 'vpub':
         case 'Vpub':
-            extKey = convertExtendedKey({ extKey: rootNode.neutered().toBase58(), toFormat: extKeyType });
+            extKey = convertExtendedKey({ extKey: rootNode.neutered().toBase58(), targetFormat: extKeyType });
             break;
         default:
             throw new Error(`Invalid extKeyType "${extKeyType}"`);
     }
-    if (printStdOut) {
+    if (output) {
         console.log(extKey);
+        return;
     }
     return extKey;
 }
 
-export function generateKeyPair({ network, printStdOut = false }: { network: string, printStdOut?: boolean }): KeyPair {
+export function generateKeyPair({ network, output = false }: { network: string, output?: boolean }): KeyPair {
     assert(['mainnet', 'testnet'].includes(network), `Invalid network "${network}"; only recognize "mainnet" or "testnet`);
     const bjsNetwork: bitcoinjs.Network = network === 'mainnet' ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
     const pair = bitcoinjs.ECPair.makeRandom({ network: bjsNetwork, compressed: true });
-    const res: KeyPair = { wif: pair.toWIF(), privKey: pair.privateKey.toString('hex'), publicKey: pair.publicKey.toString('hex') };
-    if (printStdOut) {
-        console.table(res);
+    const keyPair: KeyPair = { wif: pair.toWIF(), privKey: pair.privateKey.toString('hex'), publicKey: pair.publicKey.toString('hex') };
+    if (output) {
+        console.table(keyPair);
+        return;
     }
-    return res;
+    return keyPair;
 }
 
 /**
@@ -122,11 +126,11 @@ if (require.main === module) {
     if (program.seed) {
         generateSeed(true);
     } else if (program.extKey) {
-        generateExtKey({ extKeyType: program.extKey, printStdOut: true });
+        generateExtKey({ extKeyType: program.extKey, output: true });
     } else if (program.keyPair) {
-        generateKeyPair({ network: program.keyPair, printStdOut: true });
+        generateKeyPair({ network: program.keyPair, output: true });
     } else if (program.mnemonic) {
-        generateMnemonic({ lang: program.mnemonic, printStdOut: true });
+        generateMnemonic({ lang: program.mnemonic, output: true });
     } else {
         throw new Error(`Invalid params ${process.argv.slice(2)}`);
     }

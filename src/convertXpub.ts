@@ -27,8 +27,8 @@ const EXTENDED_KEY_VERSION_BYTES = {
 
 type convertXpubParams = {
     extKey: string,
-    toFormat: string,
-    printStdout?: boolean
+    targetFormat: string,
+    output?: boolean
 };
 
 /**
@@ -39,10 +39,10 @@ type convertXpubParams = {
  *      - Testnet pub: tpub, upub, Upub, vpub, Vpub
  * We throw error if conversion does not make sense
  * @param extKey        an extended key
- * @param toFormat      the format you want to convert the extKey into e.g. 'tpub', 'xpub' etc.
+ * @param targetFormat      the format you want to convert the extKey into e.g. 'tpub', 'xpub' etc.
  */
-export function convertExtendedKey({ extKey, toFormat, printStdout = false }: convertXpubParams) {
-    validateParams({ extKey, toFormat });
+export function convertExtendedKey({ extKey, targetFormat, output = false }: convertXpubParams) {
+    validateParams({ extKey, targetFormat });
     const meaningfulConversions = {
         mainnetXprv: new Set(BTC_MAINNET_XPRV_PREFIXES),
         mainnetXpub: new Set(BTC_MAINNET_XPUB_PREFIXES),
@@ -52,32 +52,33 @@ export function convertExtendedKey({ extKey, toFormat, printStdout = false }: co
     // TODO: throw error if we detect a meaningless conversion i.e. source and dest are not in same group
 
     extKey = extKey.trim();
-    let result;
+    let converted;
     try {
-        result = bs58Check.encode(Buffer.concat([Buffer.from(EXTENDED_KEY_VERSION_BYTES[toFormat], 'hex'), bs58Check.decode(extKey).slice(4)]));
+        converted = bs58Check.encode(Buffer.concat([Buffer.from(EXTENDED_KEY_VERSION_BYTES[targetFormat], 'hex'), bs58Check.decode(extKey).slice(4)]));
     } catch (err) {
         throw new Error('Invalid extended public key' + err);
     }
-    if (printStdout) {
-        console.log(result);
+    if (output) {
+        console.log(converted);
+        return;
     }
-    return result;
+    return converted;
 }
 
 function validateParams(params: convertXpubParams): void {
     // NOTE: cannot use utils.isValidExtKey() because it only understand xpub/xprv and tpub/tprv
     // but none of the other formats (bitcoinjs library limitation)
-    // So just validate the toFormat
-    if (!Object.keys(EXTENDED_KEY_VERSION_BYTES).includes(params.toFormat)) {
-        throw new Error(`Invalid to-format: "${params.toFormat}"; valid to-formats are ${JSON.stringify(Object.keys(EXTENDED_KEY_VERSION_BYTES))}`);
+    // So just validate the targetFormat
+    if (!Object.keys(EXTENDED_KEY_VERSION_BYTES).includes(params.targetFormat)) {
+        throw new Error(`Invalid to-format: "${params.targetFormat}"; valid to-formats are ${JSON.stringify(Object.keys(EXTENDED_KEY_VERSION_BYTES))}`);
     }
 }
 
 if (require.main === module) {
     // used on command line
     program.requiredOption('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
-        .requiredOption('-f, --to-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
+        .requiredOption('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
     program.parse(process.argv);
-    validateParams({ extKey: program.extKey, toFormat: program.toFormat });
-    convertExtendedKey({ extKey: program.extKey, toFormat: program.toFormat, printStdout: true });
+    validateParams({ extKey: program.extKey, targetFormat: program.targetFormat });
+    convertExtendedKey({ extKey: program.extKey, targetFormat: program.targetFormat, output: true });
 }
