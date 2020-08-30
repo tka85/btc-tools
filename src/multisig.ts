@@ -1,8 +1,14 @@
 /**
- * Scenario 1: Given N extended pub keys (mainnet: 'xpub', 'ypub', 'Ypub', 'zpub', 'Zpub' or testnet: 'tpub', 'upub', 'Upub', 'vpub', 'Vpub')
- * a derivation path and a threshold M, it returns a list of M-of-N multisig addresses.
+ * Scenario 1: Given
+ *      - N extended pub keys (mainnet: 'xpub', 'ypub', 'Ypub', 'zpub', 'Zpub' or testnet: 'tpub', 'upub', 'Upub', 'vpub', 'Vpub')
+ *      - a derivation path and
+ *      - a threshold M
+ * it returns a list of M-of-N multisig addresses.
  *
- * Scenario 2: Given single set of N public keys and a threshold M, it returns a single M-of-N multisig address.
+ * Scenario 2: Given
+ *      - single set of N public keys and
+ *      - a threshold M
+ * it returns a single M-of-N multisig address.
  *
  * Supported multisig formats:
  *  - p2sh (classical multisig)
