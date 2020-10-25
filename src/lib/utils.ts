@@ -12,6 +12,26 @@ export const BTC_TESTNET_XPUB_PREFIXES = ['tpub', 'upub', 'Upub', 'vpub', 'Vpub'
 export const ALL_BTC_MAINNET_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES);
 export const ALL_BTC_TESTNET_EXT_KEY_PREFIXES = BTC_TESTNET_XPRV_PREFIXES.concat(BTC_TESTNET_XPUB_PREFIXES);
 export const ALL_BTC_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES).concat(BTC_TESTNET_XPRV_PREFIXES).concat(BTC_TESTNET_XPUB_PREFIXES);
+export const NETWORKS = {
+    btc: bitcoinjs.networks.bitcoin,
+    btctest: bitcoinjs.networks.testnet,
+    ltc: {
+        messagePrefix: '\x19Litecoin Signed Message:\n',
+        bech32: 'ltc',
+        bip32: { public: 76067358, private: 76066276 },
+        pubKeyHash: 48,
+        scriptHash: 50,
+        wif: 176
+    },
+    ltctest: {
+        messagePrefix: '\x19Litecoin Signed Message:\n',
+        bech32: 'tltc',
+        bip32: { public: 70617039, private: 70615956 },
+        pubKeyHash: 111,
+        scriptHash: 58,
+        wif: 239
+    }
+};
 
 /**
  * Converts an extended key into corresponding format bitcoinjs-lib can understand;
