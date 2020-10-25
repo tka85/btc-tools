@@ -1,6 +1,6 @@
 {
   "name": "btc-utils",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "bitcoin command line utility scripts",
   "main": "index.ts",
   "scripts": {
@@ -29,12 +29,12 @@
     "commander": "4.1.1",
     "crypto-shuffle": "1.0.1",
     "slip39": "0.1.6",
-    "tiny-secp256k1": "1.1.3",
+    "tiny-secp256k1": "1.1.5",
     "wif": "2.0.6"
   },
   "devDependencies": {
-    "@types/mocha": "7.0.1",
-    "mocha": "7.1.1",
+    "@types/mocha": "8.0.3",
+    "mocha": "8.2.0",
     "ts-node": "8.6.2",
     "tslint": "6.1.0",
     "typescript": "3.7.5"
