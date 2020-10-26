@@ -1,6 +1,6 @@
 # btc-utils
 
-Small self-contained, bitcoin utils.
+Small self-contained, bitcoin utils. Now with support for litecoin. Support both mainnet and testnet for both coins.
 
 Each util can be used:
   * on command line as standalone script
@@ -26,10 +26,10 @@ $ node dist/src/derive --help
 
 ## Util: 'derive'
 
-Derives addresses et al. given:
+Derives addresses and other related data given:
   * ext key (pub or prv)
-  * path and
-  * network
+  * network and
+  * optionally path
 
 All following examples evaluate root + 2 derived addresses for several different paths.
 
@@ -39,12 +39,11 @@ All following examples evaluate root + 2 derived addresses for several different
 $ node dist/src/derive --help
 ```
 
-##### Empty path
+#### No path
 
 ```bash
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
 ```
 
 all have same output:
@@ -59,15 +58,15 @@ all have same output:
 └─────────┴───────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
 ```
 
-##### Path 0
+#### Path 0
 
 ```bash
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
 ```
 
 all have same output:
@@ -82,45 +81,45 @@ all have same output:
 └─────────┴─────────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
 ```
 
-##### Hardened path
+#### Hardened path
 
-Since path contains hardened component, we require extended private key.
-Hardened components are denoted by prime "'" or by "h".
+Note: path containing hardened component, requires extended private key for `-x`.
+Hardened components in path string are denoted by prime `"<number>'"` or by `"<number>h"`.
 
 ```bash
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
 ```
 
 all have same output:
 
 ```
-┌─────────┬──────────┬──────────────────────────────────────┬───────────────────────────────────────┬──────────────────────────────────────────────┬───────┐
-│ (index) │   path   │                legacy                │              p2sh_p2wpkh              │                    bech32                    │ depth │
-├─────────┼──────────┼──────────────────────────────────────┼───────────────────────────────────────┼──────────────────────────────────────────────┼───────┤
-│    0    │   'm/'   │ 'mgeNvuFj7FD6MzAYNzdUB7HpUWezFjvuud' │ '2MwGQiqSYMXwzzgorZi5V4oBJpC7AA6jsPY' │ 'tb1qp30e58hrp0etgsl2q9y4tar26a93nwc0wa0zh4' │   0   │
-│    1    │ "m/0'/0" │ 'n3NkSZqoPMCQN5FENxUBw4qVATbytH6FDK' │ '2NA9LWMy8Bn5QTs5CB5Z8Fbqm66oDbp8KL4' │ 'tb1qalzchqutx9f3wjln69nhkusnx5aymn8a5tyk9c' │   2   │
-│    2    │ "m/0'/1" │ 'n4Bii59dRNEVqvqkCT61Ruw9hQJYyckAQB' │ '2N7B3X9gJviqZ4uys55EGmNEhcgkRaguLKK' │ 'tb1qlzn6vxfhgkg2ph7mglggexg0ur7u2fdzhw6aen' │   2   │
-└─────────┴──────────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
+┌─────────┬───────────┬──────────────────────────────────────┬───────────────────────────────────────┬──────────────────────────────────────────────┬───────┐
+│ (index) │   path    │                legacy                │              p2sh_p2wpkh              │                    bech32                    │ depth │
+├─────────┼───────────┼──────────────────────────────────────┼───────────────────────────────────────┼──────────────────────────────────────────────┼───────┤
+│    0    │   'm/'    │ 'mgeNvuFj7FD6MzAYNzdUB7HpUWezFjvuud' │ '2MwGQiqSYMXwzzgorZi5V4oBJpC7AA6jsPY' │ 'tb1qp30e58hrp0etgsl2q9y4tar26a93nwc0wa0zh4' │   0   │
+│    1    │ "m/0\'/0" │ 'n3NkSZqoPMCQN5FENxUBw4qVATbytH6FDK' │ '2NA9LWMy8Bn5QTs5CB5Z8Fbqm66oDbp8KL4' │ 'tb1qalzchqutx9f3wjln69nhkusnx5aymn8a5tyk9c' │   2   │
+│    2    │ "m/0\'/1" │ 'n4Bii59dRNEVqvqkCT61Ruw9hQJYyckAQB' │ '2N7B3X9gJviqZ4uys55EGmNEhcgkRaguLKK' │ 'tb1qlzn6vxfhgkg2ph7mglggexg0ur7u2fdzhw6aen' │   2   │
+└─────────┴───────────┴──────────────────────────────────────┴───────────────────────────────────────┴──────────────────────────────────────────────┴───────┘
 ```
 
-##### Hardened children
+#### Hardened children
 
-We can request that the derived children are also hardened with the `-H` argument.
-Again since path contains hardened component, we require extended private key.
+Note: path containing hardened component, requires extended private key for `-x`.
+To request that the derived children are also hardened, use `-H`.
 
 
 ```bash
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -H
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -H
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -H
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -H
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -H
-$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -H
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+$ node dist/src/derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
 ```
 
 all have same output (notice how final component of path is hardened):
@@ -143,10 +142,11 @@ import { derive } from './src/derive';
 
 derive({
   extKey: 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B',
-  path: '',
+  path: 'm/',
   cols: 'path,legacy,p2sh_p2wpkh,bech32,depth',
   includeRoot: true,
-  count: 2});
+  count: 2,
+  networkName: 'btctest'});
 // [
 //   {
 //     path: 'm/',
@@ -199,7 +199,7 @@ tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstx
 #### Convert from tpub to upub
 
 ```bash
-$ node dist/src/convertXpub -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -f upub
+$ node dist/src/convertXpub -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -t upub
 upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa
 ```
 
@@ -208,7 +208,7 @@ upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1G
 ```javascript
 import { convertExtendedKey } from './src/convertXpub';
 
-convertExtendedKey({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', toFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B`
+convertExtendedKey({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B`
 ```
 
 ## Util: 'generate'
@@ -229,7 +229,7 @@ $ node dist/src/generate --help
 #### Generate a bip39 mnemonic
 
 ```bash
-$ node dist/src/ -m en
+$ node dist/src/generate -m en
 inspire symptom sadness voice leaf slam worry cricket wave cube meat evoke vintage oval true tortoise stone airport duck cart caught ladder spy affair
 ```
 
@@ -275,12 +275,12 @@ $ node dist/src/generate -p mainnet
 ```javascript
 import { generateMnemonic, generateSeed, generateExtKey, generateKeyPair } from './src/generate';
 
-generateMnemonic(); // 'frequent sudden grape provide become dutch series zebra village word rain rapid powder prefer actor sport young cactus swear pony mammal naive curve execute'
-generateMnemonic('jp'); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
+generateMnemonic({}); // 'frequent sudden grape provide become dutch series zebra village word rain rapid powder prefer actor sport young cactus swear pony mammal naive curve execute'
+generateMnemonic({lang: 'jp'}); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
 generateSeed(); // '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
-generateExtKey('xpub'); // xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
-generateExtKey('tprv'); // tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
-generateKeyPair3({network: 'mainnet'}); // { wif: 'KzCtsnCsivj1g5atA9TMLtLYssN18XBgxYuv1srrKWYFz9VCrxmK', privKey: '5917b39187ad5dbd2cfe5137e6aa6dc5bd28b67b651b6b72df2ba2d78a882106', publicKey: '039669a78ff2487e02604b0be6c9d9b5cc7ecd4dfa770f68e40b30e187fbcd110c' }
+generateExtKey({extKeyType: 'xpub'}); // xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
+generateExtKey({extKeyType: 'tprv'}); // tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
+generateKeyPair({network: 'mainnet'}); // { wif: 'KzCtsnCsivj1g5atA9TMLtLYssN18XBgxYuv1srrKWYFz9VCrxmK', privKey: '5917b39187ad5dbd2cfe5137e6aa6dc5bd28b67b651b6b72df2ba2d78a882106', publicKey: '039669a78ff2487e02604b0be6c9d9b5cc7ecd4dfa770f68e40b30e187fbcd110c' }
 ```
 
 ## Util: 'multisig'

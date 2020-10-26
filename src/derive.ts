@@ -41,7 +41,7 @@ const COLUMN_SYNONYMS = ['legacy', 'bech32',];
 const DEFAULT_COLUMNS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 const ALL_COLUMNS = COLUMNS.concat(COLUMN_SYNONYMS);
 
-export function derive({ extKey, path, cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, networkName = 'btc' }: deriveParams) {
+export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, networkName = 'btc' }: deriveParams) {
     assert(extKey, 'missing extKey');
     assert(path, 'missing path');
     // Validate params that can be validated
@@ -158,7 +158,7 @@ function validateParams(params): void {
 if (require.main === module) {
     // used on command line
     program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
-        .requiredOption('-p, --path <derivation-path>', 'can be "" (implies "m") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, priv key is necessary')
+        .option('-p, --path <derivation-path>', 'can be omitted (implies "m/") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, a private key (see -x) is necessary', 'm/')
         .option('-C, --cols <column-names>', '"all" or comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', DEFAULT_COLUMNS)
         .option('-R, --include-root', 'whether to include the node of the given extended key as well', false)
         .option('-c, --count <number>', 'number of addresses to derive', 5)
