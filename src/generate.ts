@@ -3,7 +3,7 @@ import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import bip39 = require('bip39');
 import program = require('commander');
-import { convertExtendedKey } from './convertXpub';
+import { convertExtendedKey } from './convertExtKey';
 import { ALL_BTC_MAINNET_EXT_KEY_PREFIXES } from './lib/utils';
 import shuffle = require('crypto-shuffle');
 
@@ -113,25 +113,4 @@ export function generateKeyPair({ network, output = false }: { network: string, 
 function generateBIP32Root(network: bitcoinjs.networks.Network = bitcoinjs.networks.bitcoin): bip32.BIP32Interface {
     const seed = generateSeed();
     return bip32.fromSeed(Buffer.from(seed, 'hex'), network);
-}
-
-if (require.main === module) {
-    // used on command line
-    program.option('-s, --seed', 'generate a random seed')
-        .option('-m, --mnemonic [language]', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"', 'en')
-        .option('-p, --key-pair <mainnet|testnet>', 'generate a random key pair (private and public key) for given network "mainnet" or "testnet"')
-        .option('-x, --ext-key <keyFormat>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
-
-    program.parse(process.argv);
-    if (program.seed) {
-        generateSeed(true);
-    } else if (program.extKey) {
-        generateExtKey({ extKeyType: program.extKey, output: true });
-    } else if (program.keyPair) {
-        generateKeyPair({ network: program.keyPair, output: true });
-    } else if (program.mnemonic) {
-        generateMnemonic({ lang: program.mnemonic, output: true });
-    } else {
-        throw new Error(`Invalid params ${process.argv.slice(2)}`);
-    }
 }

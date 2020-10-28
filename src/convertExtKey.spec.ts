@@ -1,7 +1,7 @@
-import { convertExtendedKey } from './convertXpub';
+import { convertExtendedKey } from './convertExtKey';
 import { equal } from 'assert';
 
-describe('convertXpub', () => {
+describe('convertExtKey', () => {
     const tpub = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B';
     const upub = 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa';
     const Upub = 'Upub5JQfBberxLXY7TucyCJwQqKkDXK1NufbQjNPjksFstLgYBWMgwep3ngwqqKzsVbhdZmT8p9991PmKa5Aj9zxySX8ZJA8PSYkpXJQ8LykvyK';

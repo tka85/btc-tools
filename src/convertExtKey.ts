@@ -25,7 +25,7 @@ const EXTENDED_KEY_VERSION_BYTES = {
     Vpub: '02575483'
 };
 
-type convertXpubParams = {
+type convertExtKeyParams = {
     extKey: string,
     targetFormat: string,
     output?: boolean
@@ -41,7 +41,7 @@ type convertXpubParams = {
  * @param extKey        an extended key
  * @param targetFormat      the format you want to convert the extKey into e.g. 'tpub', 'xpub' etc.
  */
-export function convertExtendedKey({ extKey, targetFormat, output = false }: convertXpubParams) {
+export function convertExtendedKey({ extKey, targetFormat, output = false }: convertExtKeyParams) {
     validateParams({ extKey, targetFormat });
     const meaningfulConversions = {
         mainnetXprv: new Set(BTC_MAINNET_XPRV_PREFIXES),
@@ -65,7 +65,7 @@ export function convertExtendedKey({ extKey, targetFormat, output = false }: con
     return converted;
 }
 
-function validateParams(params: convertXpubParams): void {
+function validateParams(params: convertExtKeyParams): void {
     // NOTE: cannot use utils.isValidExtKey() because it only understand xpub/xprv and tpub/tprv
     // but none of the other formats (bitcoinjs library limitation)
     // So just validate the targetFormat
@@ -75,9 +75,9 @@ function validateParams(params: convertXpubParams): void {
 }
 
 if (require.main === module) {
-    // used on command line
     program.requiredOption('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
         .requiredOption('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
+    // used on command line
     program.parse(process.argv);
     validateParams({ extKey: program.extKey, targetFormat: program.targetFormat });
     convertExtendedKey({ extKey: program.extKey, targetFormat: program.targetFormat, output: true });

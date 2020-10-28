@@ -154,30 +154,3 @@ function validateParams(params): void {
         throw new Error(`Invalid network name ${params.networkName}. Valid values are 'btc', 'btctest', 'ltc' or 'ltctest'.`);
     }
 }
-
-if (require.main === module) {
-    // used on command line
-    program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
-        .option('-p, --path <derivation-path>', 'can be omitted (implies "m/") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, a private key (see -x) is necessary', 'm/')
-        .option('-C, --cols <column-names>', '"all" or comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', DEFAULT_COLUMNS)
-        .option('-R, --include-root', 'whether to include the node of the given extended key as well', false)
-        .option('-c, --count <number>', 'number of addresses to derive', 5)
-        .option('-H, --hardened-children', 'derive hardened children under given path', false)
-        .option('-N, --network-name <btc|btctest|ltc|ltctest>', 'coin network; one of "btc", "btctest", "ltc" or "ltctest"', 'btc')
-        .option('-o, --output <table|json>', 'format for printing results; one of "table" or "json"', 'table');
-    program.parse(process.argv);
-    if (program.cols === 'all') {
-        program.cols = ALL_COLUMNS.join(',');
-    }
-    validateParams(program);
-    derive({
-        extKey: program.extKey,
-        path: program.path,
-        cols: program.cols,
-        includeRoot: program.includeRoot,
-        count: program.count,
-        hardenedChildren: program.hardenedChildren,
-        output: program.output,
-        networkName: program.networkName
-    });
-}

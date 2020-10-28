@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+program.options = [];
+const { convertExtendedKey } = require('../dist/src/convertExtKey');
+
+program.requiredOption('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
+    .requiredOption('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
+program.parse(process.argv);
+
+console.log(convertExtendedKey(program));

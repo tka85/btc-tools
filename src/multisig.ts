@@ -15,10 +15,10 @@
  *  - p2wsh (native segwit multisig)
  *  - p2sh(p2wsh) (wrapped segwit multisig)
  */
+import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import program = require('commander');
-import assert = require('assert');
 import { isValidExtKey, isValidPublicKey, isValidMainnetExtKey, isValidTestnetExtKey } from './lib/utils';
 import { DerivationPath } from './lib/DerivationPath';
 

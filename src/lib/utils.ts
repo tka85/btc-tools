@@ -1,5 +1,5 @@
 import assert = require('assert');
-import { convertExtendedKey } from '../convertXpub';
+import { convertExtendedKey } from '../convertExtKey';
 import bip32 = require('bip32');
 import bitcoinjs = require('bitcoinjs-lib');
 import secp256k1 = require('tiny-secp256k1');
