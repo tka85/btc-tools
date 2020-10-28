@@ -1,8 +1,12 @@
 {
   "name": "btc-utils",
   "version": "2.0.0",
-  "description": "bitcoin command line utility scripts",
-  "main": "index.ts",
+  "description": "bitcoin/litecoin utilities",
+  "bin": {
+    "btc-utils-derive": "./bin/btc-utils-derive",
+    "btc-utils-generate": "./bin/btc-utils-generate",
+    "btc-utils-convert-ext-key": "./bin/btc-utils-convert-ext-key"
+  },
   "scripts": {
     "build": "rm -rf dist/* && npm run lint && tsc",
     "lint": "tslint --project tsconfig.json",
