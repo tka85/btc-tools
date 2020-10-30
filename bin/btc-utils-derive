@@ -4,9 +4,9 @@ const program = require('commander');
 program.options = [];
 const { derive } = require('../dist/src/derive');
 
-program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
+program.option('-x, --ext-key <base58-extended-key>', 'an extended priv or pub key; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
     .option('-p, --path <derivation-path>', 'can be omitted (implies "m/") or start with "m" or "<number>""; hardened components are denoted by "\'" or "h"; for paths with hardened components, a private key (see -x) is necessary', 'm/')
-    .option('-C, --cols <column-names>', '"all" or comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"')
+    .option('-C, --cols <column-names>', '"all" or comma separated list of: "path", "depth", "p2pkh" (or synonym "legacy"), "p2sh_p2wpkh", "p2wpkh" (or synonym "bech32"), "xprv", "xpub", "privkey", "wif", "pubkey", "pubkey_hash", "fingerprint"', 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey')
     .option('-R, --include-root', 'whether to include the node of the given extended key as well', false)
     .option('-c, --count <number>', 'number of addresses to derive', 5)
     .option('-H, --hardened-children', 'derive hardened children under given path', false)
@@ -14,4 +14,9 @@ program.requiredOption('-x, --ext-key <base58-extended-key>', 'an extended priv 
     .option('-o, --output <table|json>', 'format for printing results; one of "table" or "json"', 'table');
 program.parse(process.argv);
 
-derive(program);
+if (program.extKey) {
+    derive(program);
+} else {
+    console.error(`ERROR: missing required parameter --ext-key\n`);
+    console.error(program.helpInformation());
+}

@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+program.options = [];
+const { convertExtendedKey, convertWIF2Buffer } = require('../dist/src/convert');
+
+program.option('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
+    .option('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
+    .option('-w, --wif <WIF>', 'convert WIF representation of private key into a buffer');
+program.parse(process.argv);
+
+if (program.extKey && program.targetFormat) {
+    console.log(convertExtendedKey(program));
+} else if (program.wif) {
+    console.log(convertWIF2Buffer(program));
+} else {
+    console.error(`ERROR: invalid or missing parameters`);
+    console.error(program.helpInformation());
+}

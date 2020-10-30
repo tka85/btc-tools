@@ -5,7 +5,7 @@ program.options = [];
 const { generateSeed, generateMnemonic, generateExtKey, generateKeyPair } = require('../dist/src/generate');
 
 program.option('-s, --seed', 'generate a random seed')
-    .option('-m, --mnemonic [language]', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"', 'en')
+    .option('-m, --mnemonic [language]', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"')
     .option('-k, --key-pair <mainnet|testnet>', 'generate a random key pair (private and public key) for given network "mainnet" or "testnet"')
     .option('-x, --ext-key <keyFormat>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
 program.parse(process.argv);
@@ -19,5 +19,6 @@ if (program.seed) {
 } else if (program.mnemonic) {
     generateMnemonic({ lang: program.mnemonic, output: true });
 } else {
-    throw new Error(`Invalid params ${process.argv.slice(2)}`);
+    console.error(`ERROR: invalid or missing parameters\n`);
+    console.error(program.helpInformation());
 }
