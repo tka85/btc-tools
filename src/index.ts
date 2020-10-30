@@ -1,5 +1,5 @@
 export * from './derive';
-export * from './convertExtKey';
+export * from './convert';
 export * from './generate';
 export * from './lib/DerivationPath';
 export * from './multisig';

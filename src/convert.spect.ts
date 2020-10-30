@@ -1,4 +1,4 @@
-import { convertExtendedKey } from './convertExtKey';
+import { convertExtendedKey } from './convert';
 import { equal } from 'assert';
 
 describe('convertExtKey', () => {

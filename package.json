@@ -5,7 +5,7 @@
   "bin": {
     "btc-utils-derive": "./bin/btc-utils-derive",
     "btc-utils-generate": "./bin/btc-utils-generate",
-    "btc-utils-convert-ext-key": "./bin/btc-utils-convert-ext-key"
+    "btc-utils-convert": "./bin/btc-utils-convert"
   },
   "scripts": {
     "build": "rm -rf dist/* && npm run lint && tsc",

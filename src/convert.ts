@@ -32,13 +32,12 @@ type convertExtKeyParams = {
 };
 
 /**
- * Conversions is meaningful only between members of the same group but possible between any pairs:
+ * Conversions are meaningful only between members of the same group but possible between any pairs:
  *      - Mainnet priv: xprv, yprv, Yprv, zprv, Zprv
  *      - Mainnet pub: xpub, ypub, Ypub, zpub, Zpub
  *      - Testnet priv: tprv, uprv, Uprv, vprv, Vprv
  *      - Testnet pub: tpub, upub, Upub, vpub, Vpub
- * We throw error if conversion does not make sense
- * @param extKey        an extended key
+ * @param extKey            an extended key
  * @param targetFormat      the format you want to convert the extKey into e.g. 'tpub', 'xpub' etc.
  */
 export function convertExtendedKey({ extKey, targetFormat, output = false }: convertExtKeyParams) {
@@ -65,12 +64,26 @@ export function convertExtendedKey({ extKey, targetFormat, output = false }: con
     return converted;
 }
 
+export function convertWIF2Buffer(wif: string): Buffer {
+    // First decode WIF; decoded form is without checksum
+    let keyBuffer = bs58Check.decode(wif);
+    // Drop version byte (e.g. 0xEF for btc testnet, 0x80 for btc mainnet)
+    keyBuffer = keyBuffer.subarray(1, keyBuffer.length);
+    // If still not 32 bytes, means it has compression byte; drop it too
+    if (keyBuffer.length !== 32) {
+        keyBuffer = keyBuffer.subarray(0, keyBuffer.length - 1);
+        if (keyBuffer.length !== 32) {
+            throw new Error('Invalid private key length');
+        }
+    }
+    return keyBuffer;
+}
+
 function validateParams(params: convertExtKeyParams): void {
-    // NOTE: cannot use utils.isValidExtKey() because it only understand xpub/xprv and tpub/tprv
-    // but none of the other formats (bitcoinjs library limitation)
-    // So just validate the targetFormat
+    // Cannot use utils.isValidExtKey() because it only understand xpub/xprv and tpub/tprv
+    // but none of the other formats (bitcoinjs library limitation). Just validate the targetFormat.
     if (!Object.keys(EXTENDED_KEY_VERSION_BYTES).includes(params.targetFormat)) {
-        throw new Error(`Invalid to-format: "${params.targetFormat}"; valid to-formats are ${JSON.stringify(Object.keys(EXTENDED_KEY_VERSION_BYTES))}`);
+        throw new Error(`Invalid target-format: "${params.targetFormat}"; valid target-formats are ${JSON.stringify(Object.keys(EXTENDED_KEY_VERSION_BYTES))}`);
     }
 }
 

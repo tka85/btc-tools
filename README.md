@@ -6,13 +6,27 @@ Each util can be used:
   * on command line as standalone script
   * as a module
 
+Command line utils will by symlinked by npm into `prefix/bin` (e.g. `/usr/local/bin` on Ubuntu) for global installs:
+
+```bash
+$ npm i -g btc-utils
+```
+
+or `./node_modules/.bin/` for local installs:
+
+```bash
+$ npm i btc-utils
+```
+
+Their utils are prefixed with `btc-utils-` like for example `btc-utils-derive` or `btc-utils-generate`. They print their output on stdout and you can choose between table and json format.
+
 ## Build
 
 ```bash
 $ npm i
 ```
 
-This will install all dependencies and build from the Typescript the corersponding JavaScript under `dist/`.
+will install all dependencies and build from the Typescript the JavaScript under `dist/`.
 
 All utils reside under `dist/src/*`
 
@@ -28,7 +42,7 @@ All following examples evaluate root + 2 derived addresses for several paths.
 ### Usage on cli
 
 ```bash
-$ node dist/src/derive --help
+$ ./node_modules/.bin/btc-utils-derive -h
 ```
 
 #### No path
@@ -164,7 +178,7 @@ derive({
 // ]
 ```
 
-## Util: 'convertExtKey'
+## Util: 'convert'
 
 Convert from one type of extended key to another. Despite the name it applies to extended private and public keys.
 
@@ -175,30 +189,32 @@ Meaningful conversions between any two of same group:
   * testnet xprv: ['tprv', 'uprv', 'Uprv', 'vprv', 'Vprv']
   * testnet xpub: ['tpub', 'upub', 'Upub', 'vpub', 'Vpub']
 
+Also converts WIF to privkey buffer and vice versa.
+
 ### Usage on cli
 
 ```bash
-$ ./node_modules/.bin/btc-utils-convert-ext-key --help
+$ ./node_modules/.bin/btc-utils-convert -h
 ```
 
 #### Convert from upub to tpub
 
 ```bash
-$ ./node_modules/.bin/btc-utils-convert-ext-key -x upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -t tpub
+$ ./node_modules/.bin/btc-utils-convert -x upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -t tpub
 tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
 ```
 
 #### Convert from tpub to upub
 
 ```bash
-$ ./node_modules/.bin/btc-utils-convert-ext-key -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -t upub
+$ ./node_modules/.bin/btc-utils-convert -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -t upub
 upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa
 ```
 
 ### Usage as module
 
 ```typescript
-import { convertExtendedKey } from './src/convertExtKey';
+import { convertExtendedKey } from './src/convert';
 
 convertExtendedKey({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B`
 ```
@@ -215,7 +231,7 @@ Generates random:
 ### Usage on cli
 
 ```bash
-$ ./node_modules/.bin/btc-utils-generate --help
+$ ./node_modules/.bin/btc-utils-generate -h
 ```
 
 #### Generate a bip39 mnemonic
