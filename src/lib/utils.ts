@@ -36,7 +36,7 @@ export const NETWORKS = {
  * Converts an extended key into corresponding format bitcoinjs-lib can understand;
  * bitcoinjs-lib only understands xprv, xpub, tprv and tpub
  */
-export function normalizeExtKey(extKey) {
+export function normalizeExtKey(extKey: string): string {
     const conversions = {
         xprv: 'xprv',
         yprv: 'xprv',
@@ -118,50 +118,10 @@ export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface
     return bitcoinjs.payments.p2wpkh({ pubkey, network }).address;
 }
 
-export function isValidMainnetExtKey(extKey: string): boolean {
-    let pubKeyBuff;
+export function isValidExtKey(extKey: string, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): boolean {
     extKey = normalizeExtKey(extKey);
-    try {
-        pubKeyBuff = bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey;
-    } catch (err) {
-        return false;
-    }
-    return isValidPublicKey(pubKeyBuff);
-}
-
-export function isValidTestnetExtKey(extKey: string): boolean {
-    let pubKeyBuff;
-    extKey = normalizeExtKey(extKey);
-    try {
-        pubKeyBuff = bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey;
-    } catch (err) {
-        return false;
-    }
-    return isValidPublicKey(pubKeyBuff);
-}
-
-export function isValidExtKey(extKey: string, network?: bitcoinjs.Network): boolean {
-    extKey = normalizeExtKey(extKey);
-    if (network) {
-        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, network).publicKey) || isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, network).privateKey);
-    }
-    try {
-        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).publicKey);
-    } /* tslint:disable:no-empty */
-    catch (err) { }
-    try {
-        return isValidPublicKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).publicKey);
-    } /* tslint:disable:no-empty */
-    catch (err) { }
-    try {
-        return isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.bitcoin).privateKey);
-    } /* tslint:disable:no-empty */
-    catch (err) { }
-    try {
-        return isValidPrivateKey(bitcoinjs.bip32.fromBase58(extKey, bitcoinjs.networks.testnet).privateKey);
-    } /* tslint:disable:no-empty */
-    catch (err) { }
-    return false;
+    const node = bitcoinjs.bip32.fromBase58(extKey, network);
+    return isValidPublicKey(node.publicKey) || isValidPrivateKey(node.privateKey);
 }
 
 export function isValidPublicKey(pubKey: string | Buffer): boolean {

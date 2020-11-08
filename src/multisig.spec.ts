@@ -1,28 +1,24 @@
-import { deriveMultisig, MULTISIG_FUNCS } from './multisig';
-import { deepEqual } from 'assert';
-import bitcoinjs = require('bitcoinjs-lib');
-import bip32 = require('bip32');
+import { multisig } from './multisig';
+import { deepStrictEqual } from 'assert';
 import { DerivationPath } from './lib/DerivationPath';
 
 describe('multisig', () => {
     const threshold = 2; // 2-of-3
     const total = 3;
-
-    const pubKeys = ['02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7', '03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0', '023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772'];
-
-    const xpubKeys = ['tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B', 'tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW', 'tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32'];
-    const network = 'testnet';
+    const pubKeys = '02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7,03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0,023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772';
+    const extKeys = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B,tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW,tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32';
+    const network = 'btctest';
     const count = 1;
     let path;
 
     beforeEach(() => {
-        path = new DerivationPath('0');
+        path = '0';
     });
 
     describe('p2sh', () => {
         const multisigType = 'p2sh';
         it(`should derive a ${threshold}-of-${total} multisig address from public keys`, () => {
-            deepEqual(deriveMultisig({ multisigType, threshold, pubKeys, network }), [
+            deepStrictEqual(multisig({ multisigType, threshold, pubKeys, network }), [
                 {
                     address: '2N6WamYHLh6KzBaDJeD3NumgdgnSA5qNqW2',
                     type: 'p2sh-2-of-3',
@@ -37,8 +33,8 @@ describe('multisig', () => {
                 }
             ]);
         });
-        it(`should derive a ${threshold}-of-${total} multisig address from xpub keys`, () => {
-            deepEqual(deriveMultisig({ multisigType, threshold, xpubKeys, path, count, network }), [
+        it(`should derive a ${threshold}-of-${total} multisig address from ext keys`, () => {
+            deepStrictEqual(multisig({ multisigType, threshold, extKeys, path, count, network }), [
                 {
                     address: '2N6WamYHLh6KzBaDJeD3NumgdgnSA5qNqW2',
                     path: '0/0',
@@ -59,7 +55,7 @@ describe('multisig', () => {
     describe('p2shp2wsh', () => {
         const multisigType = 'p2shp2wsh';
         it(`should derive a ${threshold}-of-${total} multisig address from public keys`, () => {
-            deepEqual(deriveMultisig({ multisigType, threshold, pubKeys, network }), [
+            deepStrictEqual(multisig({ multisigType, threshold, pubKeys, network }), [
                 {
                     address: '2Msyx1ZiiXmwvpf5gvJ1Xb671rgsfYRPPoH',
                     type: 'p2shp2wsh-2-of-3',
@@ -74,8 +70,8 @@ describe('multisig', () => {
                 }
             ]);
         });
-        it(`should derive a ${threshold}-of-${total} multisig address from xpub keys`, () => {
-            deepEqual(deriveMultisig({ multisigType, threshold, xpubKeys, path, count, network }), [
+        it(`should derive a ${threshold}-of-${total} multisig address from ext keys`, () => {
+            deepStrictEqual(multisig({ multisigType, threshold, extKeys, path, count, network }), [
                 {
                     address: '2Msyx1ZiiXmwvpf5gvJ1Xb671rgsfYRPPoH',
                     path: '0/0',
@@ -96,7 +92,7 @@ describe('multisig', () => {
     describe('p2wsh', () => {
         const multisigType = 'p2wsh';
         it(`should derive a ${threshold}-of-${total} multisig address from public keys`, () => {
-            deepEqual(deriveMultisig({ multisigType, threshold, pubKeys, network }), [
+            deepStrictEqual(multisig({ multisigType, threshold, pubKeys, network }), [
                 {
                     address: 'tb1q2pnadjwshn72xeeh53d33hdz0rnmeseg4varj37eu0gz5tujvd9qm76w37',
                     type: 'p2wsh-2-of-3',
@@ -110,8 +106,8 @@ describe('multisig', () => {
                 }
             ]);
         });
-        it(`should derive a ${threshold}-of-${total} multisig address from xpub keys`, () => {
-            deepEqual(deriveMultisig({ multisigType, threshold, xpubKeys, path, count, network }), [
+        it(`should derive a ${threshold}-of-${total} multisig address from ext keys`, () => {
+            deepStrictEqual(multisig({ multisigType, threshold, extKeys, path, count, network }), [
                 {
                     address: 'tb1q2pnadjwshn72xeeh53d33hdz0rnmeseg4varj37eu0gz5tujvd9qm76w37',
                     path: '0/0',

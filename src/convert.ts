@@ -1,6 +1,5 @@
-import program = require('commander');
 import bs58Check = require('bs58check');
-import { BTC_MAINNET_XPRV_PREFIXES, BTC_MAINNET_XPUB_PREFIXES, BTC_TESTNET_XPRV_PREFIXES, BTC_TESTNET_XPUB_PREFIXES, isValidExtKey } from './lib/utils';
+import { BTC_MAINNET_XPRV_PREFIXES, BTC_MAINNET_XPUB_PREFIXES, BTC_TESTNET_XPRV_PREFIXES, BTC_TESTNET_XPUB_PREFIXES } from './lib/utils';
 
 const EXTENDED_KEY_VERSION_BYTES = {
     xprv: '0488ade4', // mainnet P2PKH or P2SH
@@ -64,7 +63,8 @@ export function convertExtendedKey({ extKey, targetFormat, output = false }: con
     return converted;
 }
 
-export function convertWIF2Buffer(wif: string): Buffer {
+export function convertWIF2PrivKeyBuffer(wif: string): Buffer {
+    // TODO: add validateParams() call?
     // First decode WIF; decoded form is without checksum
     let keyBuffer = bs58Check.decode(wif);
     // Drop version byte (e.g. 0xEF for btc testnet, 0x80 for btc mainnet)
@@ -80,18 +80,9 @@ export function convertWIF2Buffer(wif: string): Buffer {
 }
 
 function validateParams(params: convertExtKeyParams): void {
-    // Cannot use utils.isValidExtKey() because it only understand xpub/xprv and tpub/tprv
+    // Cannot use utils.isValidExtKey() because it only understands xpub/xprv and tpub/tprv
     // but none of the other formats (bitcoinjs library limitation). Just validate the targetFormat.
     if (!Object.keys(EXTENDED_KEY_VERSION_BYTES).includes(params.targetFormat)) {
         throw new Error(`Invalid target-format: "${params.targetFormat}"; valid target-formats are ${JSON.stringify(Object.keys(EXTENDED_KEY_VERSION_BYTES))}`);
     }
-}
-
-if (require.main === module) {
-    program.requiredOption('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
-        .requiredOption('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub');
-    // used on command line
-    program.parse(process.argv);
-    validateParams({ extKey: program.extKey, targetFormat: program.targetFormat });
-    convertExtendedKey({ extKey: program.extKey, targetFormat: program.targetFormat, output: true });
 }
