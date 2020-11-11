@@ -1,13 +1,13 @@
 # btc-utils
 
-Collection of bitcoin utilities & functions. Now with support for litecoin. Supports both mainnet and testnet for both coins.
+Collection of bitcoin utilities. Also supports litecoin and dogecoin (both mainnet and testnet for all coins).
 
 Each util can be used:
 
 * on command line as standalone script
 * as a module
 
-Command line utils will by symlinked by npm into `prefix/bin` (e.g. `/usr/local/bin` on Ubuntu) for global installs:
+Command line utils will be symlinked by npm into `prefix/bin` (e.g. `/usr/local/bin` on Ubuntu) for global installs:
 
 ```bash
 npm i -g btc-utils

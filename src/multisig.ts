@@ -28,7 +28,7 @@ type MultisigParams = {
     count?: number,
     pubKeys?: string, // comma separated list of pub keys
     output?: 'table' | 'json',
-    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest'
+    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest' | 'doge' | 'dogetest'
 };
 
 type MultisigFunc = (threshold: number, publicKey: Buffer[], network: bitcoinjs.Network) => MultisigRecord;
@@ -114,7 +114,7 @@ function validateParams(params: MultisigParams) {
         throw new Error('At least one of either --pub-keys or --ext-keys must be defined.');
     }
     if (params.network && !NETWORKS[params.network]) {
-        throw new Error(`Invalid network name ${params.network}. Valid values are 'btc', 'btctest', 'ltc' or 'ltctest'.`);
+        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
     }
     if (!Number.isInteger(+params.threshold)) {
         throw new Error(`--threshold "M" in "M-of-N" value "${params.count}" is not an integer`);
@@ -138,5 +138,5 @@ function validateParams(params: MultisigParams) {
     if (params.output && !['table', 'json'].includes(params.output)) {
         throw new Error(`--output format valid values are 'table' or 'json'`);
     }
-    assert(Object.keys(MULTISIG_FUNCS).includes(params.multisigType), `Unknown multisig-type ${params.multisigType}. Valid types are: ${JSON.stringify(Object.keys(MULTISIG_FUNCS))}`);
+    assert(Object.getOwnPropertyNames(MULTISIG_FUNCS).includes(params.multisigType), `Unknown multisig-type ${params.multisigType}. Valid types are: ${JSON.stringify(Object.getOwnPropertyNames(MULTISIG_FUNCS))}`);
 }
