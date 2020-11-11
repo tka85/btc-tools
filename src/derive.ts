@@ -32,7 +32,7 @@ type DeriveParams = {
     count?: number,
     hardenedChildren?: boolean,
     output?: 'table' | 'json',
-    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest'
+    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest' | 'doge' | 'dogetest'
 };
 
 const COLUMNS = ['path', 'depth', 'p2pkh', 'p2sh_p2wpkh', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
@@ -135,7 +135,7 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
 
 function validateParams(params: DeriveParams): void {
     if (params.network && !NETWORKS[params.network]) {
-        throw new Error(`Invalid network name ${params.network}. Valid values are 'btc', 'btctest', 'ltc' or 'ltctest'.`);
+        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
     }
     if (!isValidExtKey(params.extKey, NETWORKS[params.network])) {
         throw new Error(`Invalid param for ext key: "${params.extKey}"`);

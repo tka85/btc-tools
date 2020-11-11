@@ -82,7 +82,7 @@ export function convertWIF2PrivKeyBuffer(wif: string): Buffer {
 function validateParams(params: convertExtKeyParams): void {
     // Cannot use utils.isValidExtKey() because it only understands xpub/xprv and tpub/tprv
     // but none of the other formats (bitcoinjs library limitation). Just validate the targetFormat.
-    if (!Object.keys(EXTENDED_KEY_VERSION_BYTES).includes(params.targetFormat)) {
-        throw new Error(`Invalid target-format: "${params.targetFormat}"; valid target-formats are ${JSON.stringify(Object.keys(EXTENDED_KEY_VERSION_BYTES))}`);
+    if (!Object.getOwnPropertyNames(EXTENDED_KEY_VERSION_BYTES).includes(params.targetFormat)) {
+        throw new Error(`Invalid target-format: "${params.targetFormat}"; valid target-formats are ${JSON.stringify(Object.getOwnPropertyNames(EXTENDED_KEY_VERSION_BYTES))}`);
     }
 }

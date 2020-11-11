@@ -11,7 +11,7 @@ export const BTC_TESTNET_XPUB_PREFIXES = ['tpub', 'upub', 'Upub', 'vpub', 'Vpub'
 export const ALL_BTC_MAINNET_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES);
 export const ALL_BTC_TESTNET_EXT_KEY_PREFIXES = BTC_TESTNET_XPRV_PREFIXES.concat(BTC_TESTNET_XPUB_PREFIXES);
 export const ALL_BTC_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES).concat(BTC_TESTNET_XPRV_PREFIXES).concat(BTC_TESTNET_XPUB_PREFIXES);
-export const NETWORKS = {
+export const NETWORKS: { [key: string]: bitcoinjs.Network } = {
     btc: bitcoinjs.networks.bitcoin,
     btctest: bitcoinjs.networks.testnet,
     ltc: {
@@ -29,8 +29,25 @@ export const NETWORKS = {
         pubKeyHash: 111,
         scriptHash: 58,
         wif: 239
+    },
+    doge: {
+        messagePrefix: '\x19Dogecoin Signed Message:\n',
+        bech32: null, // not supported
+        bip32: { public: 0x02facafd, private: 0x02fac398 },
+        pubKeyHash: 0x1e,
+        scriptHash: 0x16,
+        wif: 0x9e,
+    },
+    dogetest: {
+        messagePrefix: '\x18Dogecoin Signed Message:\n',
+        bech32: null, // not supported
+        bip32: { public: 0x043587cf, private: 0x04358394 },
+        pubKeyHash: 0x6f,
+        scriptHash: 0xc4,
+        wif: 0xef,
     }
 };
+export const NO_BECH32_NETWORKS = [NETWORKS.doge.messagePrefix];
 
 /**
  * Converts an extended key into corresponding format bitcoinjs-lib can understand;
@@ -68,7 +85,7 @@ export function normalizeExtKey(extKey: string): string {
 /**
  * Evaluate legacy address from HD node or ECPair or public key in hex as string or public key buffer
  */
-export function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+export function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
     let pubkey;
     if (typeof from === 'string' || from instanceof String) {
         pubkey = Buffer.from(from as string, 'hex');
@@ -85,7 +102,10 @@ export function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface 
 /**
  * Evaluate p2sh wrapped segwit address from HD node or ECPair or public key in hex as string or public key buffer
  */
-export function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+export function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
+    if (NO_BECH32_NETWORKS.includes(network.messagePrefix)) {
+        return null;
+    }
     let pubkey;
     if (typeof from === 'string' || from instanceof String) {
         pubkey = Buffer.from(from as string, 'hex');
@@ -104,7 +124,10 @@ export function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInter
 /**
  * Evaluate native segwit (bech32) address from HD node or ECPair or public key in hex as string or public key buffer
  */
-export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): string {
+export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
+    if (NO_BECH32_NETWORKS.includes(network.messagePrefix)) {
+        return null;
+    }
     let pubkey;
     if (typeof from === 'string' || from instanceof String) {
         pubkey = Buffer.from(from as string, 'hex');
@@ -118,7 +141,7 @@ export function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface
     return bitcoinjs.payments.p2wpkh({ pubkey, network }).address;
 }
 
-export function isValidExtKey(extKey: string, network: bitcoinjs.Network = bitcoinjs.networks.bitcoin): boolean {
+export function isValidExtKey(extKey: string, network: bitcoinjs.Network): boolean {
     extKey = normalizeExtKey(extKey);
     const node = bitcoinjs.bip32.fromBase58(extKey, network);
     return isValidPublicKey(node.publicKey) || isValidPrivateKey(node.privateKey);
