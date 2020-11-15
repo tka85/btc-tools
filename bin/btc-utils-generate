@@ -2,26 +2,17 @@
 
 const program = require('commander');
 program.options = [];
-const { generateSeed, generateMnemonic, generateExtKey, generateKeyPair } = require('../dist/src/generate');
+const { generate } = require('../dist/src/generate');
 
 program.option('-s, --seed', 'generate a random seed')
-    .option('-m, --mnemonic [language]', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"')
-    .option('-k, --key-pair <mainnet|testnet>', 'generate a random key pair (private and public key) for given network "mainnet" or "testnet"')
-    .option('-x, --ext-key <keyFormat>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
+    .option('-m, --mnemonic-lang <lang>', 'generate a random mnemonic 24 words long from bip39 wordlist; language can be one of "en","es","fr","it","jp","ko"')
+    .option('-k, --key-pair', 'generate a random key pair (private and public key) based on secp256k1')
+    .option('-x, --ext-key-type <extPrefix>', 'generate a random ext prv or pub key; key format can be "xprv" | "yprv" | "Yprv" | "zprv" | "Zprv" | "tprv" | "uprv" | "Uprv" | "vprv" | "Vprv" | "xpub" | "ypub" | "Ypub" | "zpub" | "Zpub" | "tpub" | "upub" | "Upub" | "vpub" | "Vpub"');
 program.parse(process.argv);
 
 try {
-    if (program.seed) {
-        generateSeed(true);
-    } else if (program.extKey) {
-        generateExtKey({ extKeyType: program.extKey, output: true });
-    } else if (program.keyPair) {
-        generateKeyPair({ network: program.keyPair, output: true });
-    } else if (program.mnemonic) {
-        generateMnemonic({ lang: program.mnemonic, output: true });
-    } else {
-        throw new Error('Must provide one of --seed, --mnemonic, --key-pair or --ext-key');
-    }
+    program.output = true;
+    generate(program);
 } catch (err) {
     console.error(`ERROR`, err);
     console.error(program.helpInformation());

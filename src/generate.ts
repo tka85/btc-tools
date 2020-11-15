@@ -2,9 +2,9 @@ import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import bip39 = require('bip39');
-import { convert } from './convert';
-import { ALL_BTC_MAINNET_EXT_KEY_PREFIXES } from './convert';
 import shuffle = require('crypto-shuffle');
+import { convert, ALL_BTC_MAINNET_EXT_KEY_PREFIXES } from './convert';
+import { NETWORKS } from './lib/utils';
 
 const LANGS = {
     'en': 'english',
@@ -15,17 +15,32 @@ const LANGS = {
     'ko': 'korean'
 };
 
-type KeyPair = {
-    wif: string,
+export type KeyPair = {
     privKey: string
-    publicKey: string
+    pubKey: string
+}
+
+type GenerateParams = {
+    seed?: boolean,
+    extKeyType?: 'xprv' | 'xpub' | 'yprv' | 'ypub' | 'Yprv' | 'Ypub' | 'zprv' | 'zpub' | 'Zprv' | 'Zpub' | 'tprv' | 'tpub' | 'uprv' | 'upub' | 'Uprv' | 'Upub' | 'vprv' | 'vpub' | 'Vprv' | 'Vpub',
+    keyPair?: boolean,
+    mnemonicLang?: 'en' | 'es' | 'fr' | 'it' | 'jp' | 'ko',
+    output?: boolean
+}
+
+/**
+ * @return {bip32.BIP32Interface} rootNode    a random bip32 HD root node
+ */
+function generateBIP32Root(network: bitcoinjs.Network): bip32.BIP32Interface {
+    const seed = generateSeed({ output: false });
+    return bip32.fromSeed(Buffer.from(seed, 'hex'), network);
 }
 
 /**
  * @return {string} mnemonic    a random mnemonic in specified language
  */
-export function generateMnemonic({ lang = 'en', output = false }: { lang?: 'en' | 'es' | 'fr' | 'it' | 'jp' | 'ko', output?: boolean }): string {
-    const language = LANGS[lang];
+function generateMnemonic({ mnemonicLang, output = false }: GenerateParams): string {
+    const language = LANGS[mnemonicLang];
     shuffle(bip39.wordlists[language]);
     const mnemonic = bip39.wordlists[language].slice(0, 24).join(' ');
     if (output) {
@@ -38,8 +53,8 @@ export function generateMnemonic({ lang = 'en', output = false }: { lang?: 'en' 
 /**
  * @return {string} seed    a random seed in hex
  */
-export function generateSeed(output: boolean = false): string {
-    const mnemonic = generateMnemonic({ lang: 'en' });
+function generateSeed({ output = false }: GenerateParams): string {
+    const mnemonic = generateMnemonic({ mnemonicLang: 'en' });
     const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
     if (output) {
         console.log(seed);
@@ -49,10 +64,10 @@ export function generateSeed(output: boolean = false): string {
 }
 
 /**
- * @return {string} extKey    a random ext key in specific format
+ * @return {string} extKey    a random ext key in specified format
  */
-export function generateExtKey({ extKeyType, output = false }: { extKeyType: 'xprv' | 'xpub' | 'yprv' | 'ypub' | 'Yprv' | 'Ypub' | 'zprv' | 'zpub' | 'Zprv' | 'Zpub' | 'tprv' | 'tpub' | 'uprv' | 'upub' | 'Uprv' | 'Upub' | 'vprv' | 'vpub' | 'Vprv' | 'Vpub', output?: boolean }): string {
-    const network = ALL_BTC_MAINNET_EXT_KEY_PREFIXES.includes(extKeyType) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
+function generateExtKey({ extKeyType, output = false }: GenerateParams): string {
+    const network = ALL_BTC_MAINNET_EXT_KEY_PREFIXES.includes(extKeyType) ? NETWORKS.btc : NETWORKS.btctest;
     const rootNode = generateBIP32Root(network);
     let extKey;
     switch (extKeyType) {
@@ -94,11 +109,9 @@ export function generateExtKey({ extKeyType, output = false }: { extKeyType: 'xp
     return extKey;
 }
 
-export function generateKeyPair({ network, output = false }: { network: string, output?: boolean }): KeyPair {
-    assert(['mainnet', 'testnet'].includes(network), `Invalid network "${network}"; only recognize "mainnet" or "testnet`);
-    const bjsNetwork: bitcoinjs.Network = network === 'mainnet' ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
-    const pair = bitcoinjs.ECPair.makeRandom({ network: bjsNetwork, compressed: true });
-    const keyPair: KeyPair = { wif: pair.toWIF(), privKey: pair.privateKey.toString('hex'), publicKey: pair.publicKey.toString('hex') };
+function generateKeyPair({ output = false }: GenerateParams): KeyPair {
+    const pair = bitcoinjs.ECPair.makeRandom({ network: bitcoinjs.networks.bitcoin, compressed: true });
+    const keyPair: KeyPair = { privKey: pair.privateKey.toString('hex'), pubKey: pair.publicKey.toString('hex') };
     if (output) {
         console.table(keyPair);
         return;
@@ -106,10 +119,20 @@ export function generateKeyPair({ network, output = false }: { network: string, 
     return keyPair;
 }
 
-/**
- * @return {bip32.BIP32Interface} rootNode    a random bip32 HD root node
- */
-function generateBIP32Root(network: bitcoinjs.networks.Network = bitcoinjs.networks.bitcoin): bip32.BIP32Interface {
-    const seed = generateSeed();
-    return bip32.fromSeed(Buffer.from(seed, 'hex'), network);
+function validateParams(params: GenerateParams): void {
+    // TODO: implement
+    return;
+}
+
+export function generate({ seed, extKeyType, keyPair, mnemonicLang, output }: GenerateParams): string | KeyPair {
+    validateParams({ seed, extKeyType, keyPair, mnemonicLang });
+    if (seed) {
+        return generateSeed({ output });
+    } else if (extKeyType) {
+        return generateExtKey({ extKeyType, output });
+    } else if (keyPair) {
+        return generateKeyPair({ output });
+    } else if (mnemonicLang) {
+        return generateMnemonic({ mnemonicLang, output });
+    }
 }

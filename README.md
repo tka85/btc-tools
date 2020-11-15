@@ -81,7 +81,7 @@ all have same output:
 
 #### Hardened path
 
-Note: path containing hardened component, requires extended private key for `-x`.
+Note: path containing hardened component, requires extended private key.
 Hardened components in path string are denoted by prime `"<number>'"` or by `"<number>h"`.
 
 ```bash
@@ -107,7 +107,7 @@ all have same output:
 
 #### Hardened children
 
-Note: path containing hardened component, requires extended private key for `-x`.
+Note: path containing hardened component, requires extended private key.
 To request that the derived children are also hardened, use `-H`.
 
 ```bash
@@ -193,22 +193,24 @@ btc-utils-convert -h
 
 ```bash
 btc-utils-convert -x upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -t tpub
-tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
 ```
+
+returns `tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B`.
 
 #### Convert from tpub to upub
 
 ```bash
 btc-utils-convert -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -t upub
-upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa
 ```
+
+returns `upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa`.
 
 ### Usage as module
 
 ```javascript
-const { convertExtendedKey }  = require('btc-utils');
+const { convert }  = require('btc-utils');
 
-convertExtendedKey({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
+convert({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
 ```
 
 ## 'generate'
@@ -230,57 +232,75 @@ btc-utils-generate -h
 
 ```bash
 btc-utils-generate -m en
-inspire symptom sadness voice leaf slam worry cricket wave cube meat evoke vintage oval true tortoise stone airport duck cart caught ladder spy affair
 ```
 
+returns (example) `inspire symptom sadness voice leaf slam worry cricket wave cube meat evoke vintage oval true tortoise stone airport duck cart caught ladder spy affair`.
 #### Generate a bip32 seed
 
 ```bash
 btc-utils-generate -s
-2b9912a3b1f16ed40ac481b4a7c58a2e85a4da63f7399aace1b76b89f91b14b6765ba66a318e7475b5b0cbfc31d2518e4ad9be0dda00bf0d0b1196aa3c9539a2
 ```
+
+returns (example) `2b9912a3b1f16ed40ac481b4a7c58a2e85a4da63f7399aace1b76b89f91b14b6765ba66a318e7475b5b0cbfc31d2518e4ad9be0dda00bf0d0b1196aa3c9539a2`.
 
 #### Generate an extended key
 
 ```bash
 btc-utils-generate -x xprv
-xprv9s21ZrQH143K3PZLGMhS94yDTHvsukf29k47mjvcCuMhaNDwPcRB9wPm1wDit7scpH2QpEdvsoTt4eZVaeZMBZFkLfddNypDKWSygBqkVKQ
-btc-utils-generate -x tpub
-tpubD6NzVbkrYhZ4YerTmAcxhz2b7DsvGgNRqbH2YQRamzMi24nK7fJQy5vo6iGRivRxv6xV7fJQRUV6v6YahvHK6Q2fJMB5hMWGoSATNnv18Lm
 ```
+
+returnes (example) `xprv9s21ZrQH143K3PZLGMhS94yDTHvsukf29k47mjvcCuMhaNDwPcRB9wPm1wDit7scpH2QpEdvsoTt4eZVaeZMBZFkLfddNypDKWSygBqkVKQ`.
+
+```bash
+btc-utils-generate -x tpub
+```
+
+returns (example) `tpubD6NzVbkrYhZ4YerTmAcxhz2b7DsvGgNRqbH2YQRamzMi24nK7fJQy5vo6iGRivRxv6xV7fJQRUV6v6YahvHK6Q2fJMB5hMWGoSATNnv18Lm`.
 
 #### Generate a priv/pub key pair
 
 ```bash
-btc-utils-generate -k testnet
+btc-utils-generate -k
+```
+
+returns (example):
+
+```
 ┌───────────┬──────────────────────────────────────────────────────────────────────┐
 │  (index)  │                                Values                                │
 ├───────────┼──────────────────────────────────────────────────────────────────────┤
 │    wif    │        'cUAjfPW8hpMWoqoAiBdY9tXEQ2wYfbTdUV7MGZUTEkeqsgft4QTJ'        │
 │  privKey  │  'c4887b4c9002431d06abc1826c1a3664468fe69a1111ae3834cf5ed0bf149ae4'  │
-│ publicKey │ '027a8e6e49f63bcd9013d1ad79674d099b17476d0ba664f6a5419abe5931c3e17c' │
+│  pubKey   │ '027a8e6e49f63bcd9013d1ad79674d099b17476d0ba664f6a5419abe5931c3e17c' │
 └───────────┴──────────────────────────────────────────────────────────────────────┘
-btc-utils-generate -k mainnet
+```
+
+```bash
+btc-utils-generate -k
+```
+
+returns (example):
+
+```
 ┌───────────┬──────────────────────────────────────────────────────────────────────┐
 │  (index)  │                                Values                                │
 ├───────────┼──────────────────────────────────────────────────────────────────────┤
 │    wif    │        'L4XGX27a5nXEWafq9E3e4e35nZ6eqsutNuT1FE2omnmPnXgEXwga'        │
 │  privKey  │  'd9e4ddc0f9cff802f9b1c610f800f133037f14bf1f62dfd640226852360d2197'  │
-│ publicKey │ '03e4163a5335e07f190d4f38e0ed6e4512b4be4a98b7ded15f74925377f66e7a59' │
+│  pubKey   │ '03e4163a5335e07f190d4f38e0ed6e4512b4be4a98b7ded15f74925377f66e7a59' │
 └───────────┴──────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Usage as module
 
 ```javascript
-const { generateMnemonic, generateSeed, generateExtKey, generateKeyPair } = require('btc-utils');
+const { generate } = require('btc-utils');
 
-generateMnemonic({}); // 'frequent sudden grape provide become dutch series zebra village word rain rapid powder prefer actor sport young cactus swear pony mammal naive curve execute'
-generateMnemonic({lang: 'jp'}); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
-generateSeed(); // '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
-generateExtKey({extKeyType: 'xpub'}); // xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
-generateExtKey({extKeyType: 'tprv'}); // tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
-generateKeyPair({network: 'mainnet'}); // { wif: 'KzCtsnCsivj1g5atA9TMLtLYssN18XBgxYuv1srrKWYFz9VCrxmK', privKey: '5917b39187ad5dbd2cfe5137e6aa6dc5bd28b67b651b6b72df2ba2d78a882106', publicKey: '039669a78ff2487e02604b0be6c9d9b5cc7ecd4dfa770f68e40b30e187fbcd110c' }
+generate({mnemonicLang: 'jp'}); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
+generate({seed: true}); // '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
+generate({extKeyType: 'xpub'}); // xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
+generate({extKeyType: 'tprv'}); // tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
+generate({keyPair: true}); // { privKey: '5917b39187ad5dbd2cfe5137e6aa6dc5bd28b67b651b6b72df2ba2d78a882106', publicKey: '039669a78ff2487e02604b0be6c9d9b5cc7ecd4dfa770f68e40b30e187fbcd110c' }
 ```
 
 ## 'multisig'

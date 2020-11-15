@@ -87,4 +87,10 @@ describe('convert', () => {
     it('should convert correctly Vpub => vpub', () => {
         strictEqual(convert({ extKey: Vpub, targetFormat: 'vpub' }), vpub);
     });
+
+    it('should convert WIF to private key', () => {
+        const wif = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ';
+        const privKey = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d';
+        strictEqual(convert({ wif }), privKey);
+    });
 });
