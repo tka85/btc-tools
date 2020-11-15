@@ -42,7 +42,7 @@ const EXT_KEY_DATA = {
     Vpub: { version: '02575483', normalized: 'tpub', validTargets: BTC_TESTNET_XPUB_PREFIXES }
 };
 
-type convertParams = {
+type ConvertParams = {
     extKey?: string,
     targetFormat?: string,
     wif?: string,
@@ -58,7 +58,7 @@ type convertParams = {
  * @param extKey            an extended key
  * @param targetFormat      the format you want to convert the extKey into e.g. 'tpub', 'xpub' etc.
  */
-function convertExtendedKey({ extKey, targetFormat, output = false }: convertParams) {
+function convertExtendedKey({ extKey, targetFormat, output = false }: ConvertParams): string {
     extKey = extKey.trim();
     let converted;
     try {
@@ -73,7 +73,7 @@ function convertExtendedKey({ extKey, targetFormat, output = false }: convertPar
     return converted;
 }
 
-function convertWIF2PrivKey({ wif, output = false }: convertParams): string {
+function convertWIF2PrivKey({ wif, output = false }: ConvertParams): string {
     // First decode WIF; decoded form is without checksum
     let keyBuffer = bs58Check.decode(wif);
     // Drop version byte (e.g. 0xEF for btc testnet, 0x80 for btc mainnet)
@@ -91,7 +91,7 @@ function convertWIF2PrivKey({ wif, output = false }: convertParams): string {
     return keyBuffer.toString('hex');
 }
 
-function validateParams(params: convertParams): void {
+function validateParams(params: ConvertParams): void {
     if ((params.extKey && !params.targetFormat) ||
         (!params.extKey && params.targetFormat) ||
         (!params.extKey && !params.targetFormat && !params.wif)) {
@@ -123,7 +123,7 @@ export function normalizeExtKey(extKey: string): string {
     return convertExtendedKey({ extKey, targetFormat });
 }
 
-export function convert({ extKey, targetFormat, wif, output }: convertParams) {
+export function convert({ extKey, targetFormat, wif, output }: ConvertParams): string {
     validateParams({ extKey, targetFormat, wif });
     if (extKey) {
         return convertExtendedKey({ extKey, targetFormat, output });
