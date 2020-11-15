@@ -1,8 +1,9 @@
 import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import { isValidExtKey, isValidPublicKey, NETWORKS, normalizeExtKey } from './lib/utils';
+import { isValidExtKey, isValidPublicKey, NETWORKS } from './lib/utils';
 import { DerivationPath } from './lib/DerivationPath';
+import { normalizeExtKey } from './convert';
 
 const MULTISIG_FUNCS = {
     p2sh: P2SH_P2MS_MultisigAddress, // classical msig
@@ -28,7 +29,7 @@ type MultisigParams = {
     count?: number,
     pubKeys?: string, // comma separated list of pub keys
     output?: 'table' | 'json',
-    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest' | 'doge' | 'dogetest'
+    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest'
 };
 
 type MultisigFunc = (threshold: number, publicKey: Buffer[], network: bitcoinjs.Network) => MultisigRecord;
@@ -63,6 +64,40 @@ function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[], net
     // path (if any) will be added by caller
     const redeemBuff = res.redeem.output;
     return { address: res.address, type: `p2wsh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), redeem: redeemBuff.toString('hex'), redeemASM: bitcoinjs.script.toASM(redeemBuff) };
+}
+
+function validateParams(params: MultisigParams) {
+    if (params.pubKeys && params.extKeys) {
+        throw new Error('Either --pub-keys or --ext-keys can be defined. Not both.');
+    } else if (!params.pubKeys && !params.extKeys) {
+        throw new Error('At least one of either --pub-keys or --ext-keys must be defined.');
+    }
+    if (params.network && !NETWORKS[params.network]) {
+        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
+    }
+    if (!Number.isInteger(+params.threshold)) {
+        throw new Error(`--threshold "M" in "M-of-N" value "${params.count}" is not an integer`);
+    }
+    if (params.extKeys) {
+        assert(params.path || params.path === '' || parseInt(params.path, 10) === 0, 'Missing --path derivation path (required with --ext-keys');
+        assert(Number.isInteger(+params.count), `--count of derived addresses value "${params.count}" is not an integer`);
+        const extKeysArray = params.extKeys.split(',');
+        extKeysArray.forEach(_ => {
+            assert(isValidExtKey(_, NETWORKS[params.network]), `${_} is not a valid ext key for network ${params.network}`);
+        });
+        assert(extKeysArray.length >= +params.threshold, `threshold M should be less than or equal to number N of provided extpub keys (M=${+params.threshold}/N=${extKeysArray.length})`);
+    } else {
+        // just public keys
+        const pubKeysArray = params.pubKeys.split(',');
+        pubKeysArray.forEach(_ => {
+            assert(isValidPublicKey(_), `${_} is not a valid public key for EC secp256k1`);
+        });
+        assert(pubKeysArray.length >= +params.threshold, `threshold M should be less than or equal to number N of provided public keys (M=${+params.threshold}/N=${pubKeysArray.length})`);
+    }
+    if (params.output && !['table', 'json'].includes(params.output)) {
+        throw new Error(`--output format valid values are 'table' or 'json'`);
+    }
+    assert(Object.getOwnPropertyNames(MULTISIG_FUNCS).includes(params.multisigType), `Unknown multisig-type ${params.multisigType}. Valid types are: ${JSON.stringify(Object.getOwnPropertyNames(MULTISIG_FUNCS))}`);
 }
 
 export function multisig({ multisigType, threshold, extKeys, path, count, pubKeys, output = null, network = 'btc' }: MultisigParams): MultisigRecord[] {
@@ -105,38 +140,4 @@ export function multisig({ multisigType, threshold, extKeys, path, count, pubKey
         default:
             return result;
     }
-}
-
-function validateParams(params: MultisigParams) {
-    if (params.pubKeys && params.extKeys) {
-        throw new Error('Either --pub-keys or --ext-keys can be defined. Not both.');
-    } else if (!params.pubKeys && !params.extKeys) {
-        throw new Error('At least one of either --pub-keys or --ext-keys must be defined.');
-    }
-    if (params.network && !NETWORKS[params.network]) {
-        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
-    }
-    if (!Number.isInteger(+params.threshold)) {
-        throw new Error(`--threshold "M" in "M-of-N" value "${params.count}" is not an integer`);
-    }
-    if (params.extKeys) {
-        assert(params.path || params.path === '' || parseInt(params.path, 10) === 0, 'Missing --path derivation path (required with --ext-keys');
-        assert(Number.isInteger(+params.count), `--count of derived addresses value "${params.count}" is not an integer`);
-        const extKeysArray = params.extKeys.split(',');
-        extKeysArray.forEach(_ => {
-            assert(isValidExtKey(_, NETWORKS[params.network]), `${_} is not a valid ext key for network ${params.network}`);
-        });
-        assert(extKeysArray.length >= +params.threshold, `threshold M should be less than or equal to number N of provided extpub keys (M=${+params.threshold}/N=${extKeysArray.length})`);
-    } else {
-        // just public keys
-        const pubKeysArray = params.pubKeys.split(',');
-        pubKeysArray.forEach(_ => {
-            assert(isValidPublicKey(_), `${_} is not a valid public key for EC secp256k1`);
-        });
-        assert(pubKeysArray.length >= +params.threshold, `threshold M should be less than or equal to number N of provided public keys (M=${+params.threshold}/N=${pubKeysArray.length})`);
-    }
-    if (params.output && !['table', 'json'].includes(params.output)) {
-        throw new Error(`--output format valid values are 'table' or 'json'`);
-    }
-    assert(Object.getOwnPropertyNames(MULTISIG_FUNCS).includes(params.multisigType), `Unknown multisig-type ${params.multisigType}. Valid types are: ${JSON.stringify(Object.getOwnPropertyNames(MULTISIG_FUNCS))}`);
 }

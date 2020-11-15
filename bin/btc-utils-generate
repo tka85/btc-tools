@@ -19,6 +19,8 @@ try {
         generateKeyPair({ network: program.keyPair, output: true });
     } else if (program.mnemonic) {
         generateMnemonic({ lang: program.mnemonic, output: true });
+    } else {
+        throw new Error('Must provide one of --seed, --mnemonic, --key-pair or --ext-key');
     }
 } catch (err) {
     console.error(`ERROR`, err);

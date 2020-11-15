@@ -1,6 +1,5 @@
 import { multisig } from './multisig';
 import { deepStrictEqual } from 'assert';
-import { DerivationPath } from './lib/DerivationPath';
 
 describe('multisig', () => {
     const threshold = 2; // 2-of-3
