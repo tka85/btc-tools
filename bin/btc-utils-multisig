@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+program.options = [];
+const { multisig } = require('../dist/src/multisig');
+
+program.option('-T, --multisig-type <type>', 'one of "p2sh" (classical), "p2shp2wsh" (wrapped segwit), "p2wsh" (native segwit)')
+    .option('-t, --threshold <m>', 'the "M" in "M-of-N" multisig i.e. the minimum required number of signatures')
+    .option('-x, --ext-keys <xpub1,xpub2,...xpubN>', '"N" xpub keys for "M-of-N" multisig (the order matters); requires "--path" and optionally "--count"; recognizes key formats: [xyYzZ]pub, [tuUvV]pub')
+    .option('-p, --path <derivation-path>', '(required in case of xpub keys) the path used to derive the addresses')
+    .option('-c, --count <number>', '(only in case xpub keys are provided) number of multisig addresses to derive', 5)
+    .option('-P, --pub-keys <pubkey1,pubkey2,...pubkeyN>', '"N" simple public keys for "M-of-N" multisig (the order matters)')
+    .option('-N, --network <btc|btctest|ltc|ltctest|doge|dogetest>', 'specifies the coin and network', 'btc')
+    .option('-o, --output <table|json>', 'format for printing results; one of "table" or "json"', 'table');
+
+program.parse(process.argv);
+
+try {
+    multisig(program);
+} catch (err) {
+    console.error(`ERROR:`, err);
+    console.error(program.helpInformation());
+}

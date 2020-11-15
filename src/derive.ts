@@ -2,10 +2,9 @@
  * Given extendsible key and a path, it derives addresses (bip32)
  */
 import assert = require('assert');
-import program = require('commander');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import { normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, isValidExtKey, isValidMainnetExtKey, NETWORKS } from './lib/utils';
+import { normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, isValidExtKey, NETWORKS } from './lib/utils';
 import { DerivationPath } from './lib/DerivationPath';
 
 type Row = {
@@ -25,7 +24,7 @@ type Row = {
     fingerprint?: string
 };
 
-type deriveParams = {
+type DeriveParams = {
     extKey: string,
     path: string,
     cols?: string,
@@ -33,7 +32,7 @@ type deriveParams = {
     count?: number,
     hardenedChildren?: boolean,
     output?: 'table' | 'json',
-    networkName?: 'btc' | 'btctest' | 'ltc' | 'ltctest'
+    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest' | 'doge' | 'dogetest'
 };
 
 const COLUMNS = ['path', 'depth', 'p2pkh', 'p2sh_p2wpkh', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
@@ -41,18 +40,17 @@ const COLUMN_SYNONYMS = ['legacy', 'bech32',];
 const DEFAULT_COLUMNS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 const ALL_COLUMNS = COLUMNS.concat(COLUMN_SYNONYMS);
 
-export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, networkName = 'btc' }: deriveParams) {
+export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, network = 'btc' }: DeriveParams) {
     assert(extKey, 'missing extKey');
     assert(path, 'missing path');
     // Validate params that can be validated
-    validateParams({ extKey, cols, count, output, networkName });
+    validateParams({ extKey, path, cols, count, output, network });
     if (cols === 'all') {
         cols = ALL_COLUMNS.join(',');
     }
     extKey = normalizeExtKey(extKey);
-    const network = NETWORKS[networkName];
-    const rootNode = bip32.fromBase58(extKey, network);
-    const dPath = new DerivationPath(path, hardenedChildren)
+    const rootNode = bip32.fromBase58(extKey, NETWORKS[network]);
+    const dPath = new DerivationPath(path, hardenedChildren);
     const result: Row[] = [];
 
     assert(cols);
@@ -61,12 +59,12 @@ export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoo
 
     if (includeRoot) {
         // Add a row for given ext key as well
-        result.push(evalNextRow(rootNode, '', network, colsArray));
+        result.push(evalNextRow(rootNode, '', NETWORKS[network], colsArray));
     }
 
     for (let i = 0; i < count; i++) {
         const childNode = rootNode.derivePath(dPath.toString());
-        result.push(evalNextRow(childNode, dPath.toString(), network, colsArray));
+        result.push(evalNextRow(childNode, dPath.toString(), NETWORKS[network], colsArray));
         dPath.incrementPath();
     }
 
@@ -75,7 +73,7 @@ export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoo
             console.table(result);
             return;
         case 'json':
-            console.log(result);
+            console.log(JSON.stringify(result, null, 2));
             return;
         default:
             return result;
@@ -135,8 +133,11 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
     return nextRow;
 }
 
-function validateParams(params): void {
-    if (!isValidExtKey(params.extKey)) {
+function validateParams(params: DeriveParams): void {
+    if (params.network && !NETWORKS[params.network]) {
+        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
+    }
+    if (!isValidExtKey(params.extKey, NETWORKS[params.network])) {
         throw new Error(`Invalid param for ext key: "${params.extKey}"`);
     };
     params.cols.split(',').forEach(_ => {
@@ -148,9 +149,6 @@ function validateParams(params): void {
         throw new Error(`--count of derived addresses "${params.count}" is not an integer`);
     }
     if (params.output && !['table', 'json'].includes(params.output)) {
-        throw new Error(`--output format valid values are "table" or "json"`);
-    }
-    if (params.network && !NETWORKS[params.networkName]) {
-        throw new Error(`Invalid network name ${params.networkName}. Valid values are 'btc', 'btctest', 'ltc' or 'ltctest'.`);
+        throw new Error(`--output format valid values are 'table' or 'json'`);
     }
 }

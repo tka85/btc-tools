@@ -82,38 +82,35 @@ describe('derive', () => {
             wif: null
         }];
         it('should fail if missing key', () => {
-            throws(() => { derive({ extKey: undefined, path: '0/0', hardenedChildren: false, }) });
-        });
-        it('should fail if missing path', () => {
-            throws(() => { derive({ extKey: tpub, path: undefined, hardenedChildren: false, }) });
+            throws(() => { derive({ extKey: undefined, path: '0/0', hardenedChildren: false, network: 'btctest' }) });
         });
         it('should fail if key is invalid', () => {
-            throws(() => { derive({ extKey: invalidChecksumTpub, path: '0/0', hardenedChildren: false, }) }, 'Error: Invalid param for ext key: "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL"');
+            throws(() => { derive({ extKey: invalidChecksumTpub, path: '0/0', hardenedChildren: false, network: 'btctest' }) }, 'Error: Invalid param for ext key: "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL"');
         });
-        it('should fail if invalid path', () => {
-            throws(() => { derive({ extKey: tpub, path: invalidPath, hardenedChildren: false, networkName: 'btctest' }) }, /Expected BIP32Path, got String ".*"/);
-        });
-        it('should derive correctly from tprv', () => {
-            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, networkName: 'btctest' }), derivedNonHardenedNotNeutered);
+        it('should fail if path is invalid', () => {
+            throws(() => { derive({ extKey: tpub, path: invalidPath, hardenedChildren: false, network: 'btctest' }) }, /Expected BIP32Path, got String ".*"/);
         });
         it('should derive correctly from tprv', () => {
-            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all', networkName: 'btctest' }), derivedNonHardenedNotNeuteredAllColumns);
+            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, network: 'btctest' }), derivedNonHardenedNotNeutered);
+        });
+        it('should derive correctly from tprv', () => {
+            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all', network: 'btctest' }), derivedNonHardenedNotNeuteredAllColumns);
         });
         it('should derive correctly from tpub', () => {
-            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, count: 1, networkName: 'btctest' }), derivedNonHardenedNeutered);
+            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, count: 1, network: 'btctest' }), derivedNonHardenedNeutered);
         });
         it('should derive correctly with custom columns', () => {
-            deepEqual(derive({ extKey: tpub, path, cols: 'p2wpkh', hardenedChildren: false, count: 1, networkName: 'btctest' }), derived00CustomCols);
+            deepEqual(derive({ extKey: tpub, path, cols: 'p2wpkh', hardenedChildren: false, count: 1, network: 'btctest' }), derived00CustomCols);
         });
         it('should derive correctly including root', () => {
-            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, includeRoot: true, count: 1, networkName: 'btctest' }), derived00WithRoot);
+            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, includeRoot: true, count: 1, network: 'btctest' }), derived00WithRoot);
         });
         it('should derive correctly hardened path (both formats)', () => {
-            deepEqual(derive({ extKey: tprv, path: hardenedPath0, hardenedChildren: false, includeRoot: false, count: 1, networkName: 'btctest' }), derivedHardened);
-            deepEqual(derive({ extKey: tprv, path: hardenedPath1, hardenedChildren: false, includeRoot: false, count: 1, networkName: 'btctest' }), derivedHardened);
+            deepEqual(derive({ extKey: tprv, path: hardenedPath0, hardenedChildren: false, includeRoot: false, count: 1, network: 'btctest' }), derivedHardened);
+            deepEqual(derive({ extKey: tprv, path: hardenedPath1, hardenedChildren: false, includeRoot: false, count: 1, network: 'btctest' }), derivedHardened);
         });
         it('should derive correctly hardened children', () => {
-            deepEqual(derive({ extKey: tprv, path, hardenedChildren: true, includeRoot: false, count: 1, networkName: 'btctest' }), derivedHardenedChild);
+            deepEqual(derive({ extKey: tprv, path, hardenedChildren: true, includeRoot: false, count: 1, network: 'btctest' }), derivedHardenedChild);
         });
     });
     describe('for Litecoin testnet', () => {
@@ -189,38 +186,35 @@ describe('derive', () => {
             wif: null
         }];
         it('should fail if missing key', () => {
-            throws(() => { derive({ extKey: undefined, path: '0/0', hardenedChildren: false, }) });
-        });
-        it('should fail if missing path', () => {
-            throws(() => { derive({ extKey: tpub, path: undefined, hardenedChildren: false, }) });
+            throws(() => { derive({ extKey: undefined, path: '0/0', hardenedChildren: false, network: 'ltctest' }) });
         });
         it('should fail if key is invalid', () => {
-            throws(() => { derive({ extKey: invalidChecksumTpub, path: '0/0', hardenedChildren: false, }) }, 'Error: Invalid param for ext key: "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL"');
+            throws(() => { derive({ extKey: invalidChecksumTpub, path: '0/0', hardenedChildren: false, network: 'ltctest' }) }, 'Error: Invalid param for ext key: "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL"');
         });
         it('should fail if invalid path', () => {
-            throws(() => { derive({ extKey: tpub, path: invalidPath, hardenedChildren: false, networkName: 'ltctest' }) }, /Expected BIP32Path, got String ".*"/);
+            throws(() => { derive({ extKey: tpub, path: invalidPath, hardenedChildren: false, network: 'ltctest' }) }, /Expected BIP32Path, got String ".*"/);
         });
         it('should derive correctly from tprv', () => {
-            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, networkName: 'ltctest' }), derivedNonHardenedNotNeutered);
+            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, network: 'ltctest' }), derivedNonHardenedNotNeutered);
         });
         it('should derive correctly from tprv', () => {
-            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all', networkName: 'ltctest' }), derivedNonHardenedNotNeuteredAllColumns);
+            deepEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all', network: 'ltctest' }), derivedNonHardenedNotNeuteredAllColumns);
         });
         it('should derive correctly from tpub', () => {
-            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, count: 1, networkName: 'ltctest' }), derivedNonHardenedNeutered);
+            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, count: 1, network: 'ltctest' }), derivedNonHardenedNeutered);
         });
         it('should derive correctly with custom columns', () => {
-            deepEqual(derive({ extKey: tpub, path, cols: 'p2wpkh', hardenedChildren: false, count: 1, networkName: 'ltctest' }), derived00CustomCols);
+            deepEqual(derive({ extKey: tpub, path, cols: 'p2wpkh', hardenedChildren: false, count: 1, network: 'ltctest' }), derived00CustomCols);
         });
         it('should derive correctly including root', () => {
-            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, includeRoot: true, count: 1, networkName: 'ltctest' }), derived00WithRoot);
+            deepEqual(derive({ extKey: tpub, path, hardenedChildren: false, includeRoot: true, count: 1, network: 'ltctest' }), derived00WithRoot);
         });
         it('should derive correctly hardened path (both formats)', () => {
-            deepEqual(derive({ extKey: tprv, path: hardenedPath0, hardenedChildren: false, includeRoot: false, count: 1, networkName: 'ltctest' }), derivedHardened);
-            deepEqual(derive({ extKey: tprv, path: hardenedPath1, hardenedChildren: false, includeRoot: false, count: 1, networkName: 'ltctest' }), derivedHardened);
+            deepEqual(derive({ extKey: tprv, path: hardenedPath0, hardenedChildren: false, includeRoot: false, count: 1, network: 'ltctest' }), derivedHardened);
+            deepEqual(derive({ extKey: tprv, path: hardenedPath1, hardenedChildren: false, includeRoot: false, count: 1, network: 'ltctest' }), derivedHardened);
         });
         it('should derive correctly hardened children', () => {
-            deepEqual(derive({ extKey: tprv, path, hardenedChildren: true, includeRoot: false, count: 1, networkName: 'ltctest' }), derivedHardenedChild);
+            deepEqual(derive({ extKey: tprv, path, hardenedChildren: true, includeRoot: false, count: 1, network: 'ltctest' }), derivedHardenedChild);
         });
     });
 });

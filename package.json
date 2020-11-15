@@ -2,10 +2,12 @@
   "name": "btc-utils",
   "version": "2.0.0",
   "description": "bitcoin/litecoin utilities",
+  "main": "dist/index.js",
   "bin": {
     "btc-utils-derive": "./bin/btc-utils-derive",
     "btc-utils-generate": "./bin/btc-utils-generate",
-    "btc-utils-convert": "./bin/btc-utils-convert"
+    "btc-utils-convert": "./bin/btc-utils-convert",
+    "btc-utils-multisig": "./bin/btc-utils-multisig"
   },
   "scripts": {
     "build": "rm -rf dist/* && npm run lint && tsc",
@@ -18,7 +20,7 @@
     "url": "git+https://github.com/tka85/btc-utils.git"
   },
   "author": "tka85",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/tka85/btc-utils/issues"
   },

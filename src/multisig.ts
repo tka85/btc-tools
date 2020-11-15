@@ -1,28 +1,10 @@
-/**
- * Scenario 1: Given
- *      - N extended pub keys (mainnet: 'xpub', 'ypub', 'Ypub', 'zpub', 'Zpub' or testnet: 'tpub', 'upub', 'Upub', 'vpub', 'Vpub')
- *      - a derivation path and
- *      - a threshold M
- * it returns a list of M-of-N multisig addresses.
- *
- * Scenario 2: Given
- *      - single set of N public keys and
- *      - a threshold M
- * it returns a single M-of-N multisig address.
- *
- * Supported multisig formats:
- *  - p2sh (classical multisig)
- *  - p2wsh (native segwit multisig)
- *  - p2sh(p2wsh) (wrapped segwit multisig)
- */
 import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import program = require('commander');
-import { isValidExtKey, isValidPublicKey, isValidMainnetExtKey, isValidTestnetExtKey } from './lib/utils';
+import { isValidExtKey, isValidPublicKey, NETWORKS, normalizeExtKey } from './lib/utils';
 import { DerivationPath } from './lib/DerivationPath';
 
-export const MULTISIG_FUNCS = {
+const MULTISIG_FUNCS = {
     p2sh: P2SH_P2MS_MultisigAddress, // classical msig
     p2shp2wsh: P2SH_P2WSH_P2MS_MultisigAddress, // wrapped segwit msig
     p2wsh: P2WSH_P2MS_MultisigAddress // native segwit
@@ -41,12 +23,12 @@ type MultisigRecord = {
 type MultisigParams = {
     multisigType: string,
     threshold: number,
-    network: string,
-    xpubKeys?: string[],
-    path?: DerivationPath,
+    extKeys?: string, // comma separated list of xpub keys
+    path?: string,
     count?: number,
-    pubKeys?: string[],
-    printStdOut?: boolean
+    pubKeys?: string, // comma separated list of pub keys
+    output?: 'table' | 'json',
+    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest' | 'doge' | 'dogetest'
 };
 
 type MultisigFunc = (threshold: number, publicKey: Buffer[], network: bitcoinjs.Network) => MultisigRecord;
@@ -83,105 +65,78 @@ function P2WSH_P2MS_MultisigAddress(threshold: number, publicKeys: Buffer[], net
     return { address: res.address, type: `p2wsh-${threshold}-of-${publicKeys.length}`, publicKeys: publicKeys.map(_ => _.toString('hex')), redeem: redeemBuff.toString('hex'), redeemASM: bitcoinjs.script.toASM(redeemBuff) };
 }
 
-export function deriveMultisig({ multisigType, threshold, network, xpubKeys, path, count, pubKeys, printStdOut = false }: MultisigParams): MultisigRecord[] {
-    const multisigResults: MultisigRecord[] = [];
+export function multisig({ multisigType, threshold, extKeys, path, count, pubKeys, output = null, network = 'btc' }: MultisigParams): MultisigRecord[] {
+    const result: MultisigRecord[] = [];
 
-    validateParams({ multisigType, threshold, network, xpubKeys, path, count, pubKeys });
+    threshold = +threshold;
+    count = +count;
+    validateParams({ multisigType, threshold, extKeys, path, count, pubKeys, output, network });
 
     const multisigFunc: MultisigFunc = MULTISIG_FUNCS[multisigType];
-    let xpubNodes: bip32.BIP32Interface[];
-    let pubKeyBuffers: Buffer[];
-    let bjsNetwork: bitcoinjs.Network;
 
-    if (xpubKeys) {
-        // Deduce network from type of xpub keys
-        bjsNetwork = xpubKeys.every(isValidMainnetExtKey) ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
-        xpubNodes = xpubKeys && xpubKeys.map(_ => bip32.fromBase58(_, bjsNetwork));
-    } else if (pubKeys) {
-        bjsNetwork = network === 'mainnet' ? bitcoinjs.networks.bitcoin : bitcoinjs.networks.testnet;
-        pubKeyBuffers = pubKeys.map(_ => Buffer.from(_, 'hex'));
-    }
-
-    if (pubKeyBuffers) {
-        // Generate single M-of-N multisig address from single set of N public keys
-        multisigResults.push(multisigFunc(threshold, pubKeyBuffers, bjsNetwork));
-    } else {
-        // Generate $count M-of-N multisig addresses from N xpub keys + a path incremented $count times
+    if (extKeys) {
+        const xpubNodes: bip32.BIP32Interface[] = extKeys.split(',').map(_ => normalizeExtKey(_)).map(_ => bip32.fromBase58(_, NETWORKS[network]));
+        const dPath = new DerivationPath(path);
+        // Generate $count M-of-N multisig addresses from N xpub keys + $count path increments
         let nextMultisig: MultisigRecord;
         for (let i = 0; i < count; i++) {
-            pubKeyBuffers = [];
+            const pubKeyBuffers = [];
             xpubNodes.forEach(_ => {
-                pubKeyBuffers.push(_.derivePath(path.normalizedPathToString()).publicKey);
+                pubKeyBuffers.push(_.derivePath(dPath.normalizedPathToString()).publicKey);
             });
-            nextMultisig = multisigFunc(threshold, pubKeyBuffers, bjsNetwork);
-            nextMultisig.path = path.toString();
-            multisigResults.push(nextMultisig);
-            path.incrementPath();
+            nextMultisig = multisigFunc(threshold, pubKeyBuffers, NETWORKS[network]);
+            nextMultisig.path = dPath.toString();
+            result.push(nextMultisig);
+            dPath.incrementPath();
         }
+    } else if (pubKeys) {
+        const pubKeyBuffers: Buffer[] = pubKeys.split(',').map(_ => Buffer.from(_, 'hex'));
+        // Generate single M-of-N multisig address from single set of N public keys
+        result.push(multisigFunc(threshold, pubKeyBuffers, NETWORKS[network]));
     }
-    if (printStdOut) {
-        console.table(multisigResults);
+
+    switch (output) {
+        case 'table':
+            console.table(result);
+            return;
+        case 'json':
+            console.log(JSON.stringify(result, null, 2));
+            return;
+        default:
+            return result;
     }
-    return multisigResults;
 }
 
 function validateParams(params: MultisigParams) {
-    if (params.network) {
-        assert(['mainnet', 'testnet'].includes(params.network), 'Invalid network. Can only be either "mainnet" or "testnet"');
+    if (params.pubKeys && params.extKeys) {
+        throw new Error('Either --pub-keys or --ext-keys can be defined. Not both.');
+    } else if (!params.pubKeys && !params.extKeys) {
+        throw new Error('At least one of either --pub-keys or --ext-keys must be defined.');
     }
-    assert(Number.isInteger(+params.threshold), 'threshold should be an integer');
-    if (params.pubKeys && params.xpubKeys) {
-        throw new Error('Either --pub-keys or --xpub-keys can be defined. Not both.');
-    } else if (!params.pubKeys && !params.xpubKeys) {
-        throw new Error('At least one of either --pub-keys or --xpub-keys must be defined.');
+    if (params.network && !NETWORKS[params.network]) {
+        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
     }
-
-    if (params.xpubKeys) {
-        if (!params.path) {
-            throw new Error('Missing --path derivation path (required with --xpub-keys');
-        }
-        if (params.count) {
-            assert(Number.isInteger(+params.count), '--count should be an integer');
-        }
-        const xpubKeys = params.xpubKeys;
-        assert(Array.isArray(xpubKeys), '--xpub-keys should be a comma separated list of xpub keys');
-        assert(xpubKeys.every(_ => isValidExtKey(_)), 'Not valid ext key');
-        assert(xpubKeys.every(isValidMainnetExtKey) || xpubKeys.every(isValidTestnetExtKey), 'Ext keys should all be from same network i.e. all "mainnet" or all "testnet"');
+    if (!Number.isInteger(+params.threshold)) {
+        throw new Error(`--threshold "M" in "M-of-N" value "${params.count}" is not an integer`);
+    }
+    if (params.extKeys) {
+        assert(params.path || params.path === '' || parseInt(params.path, 10) === 0, 'Missing --path derivation path (required with --ext-keys');
+        assert(Number.isInteger(+params.count), `--count of derived addresses value "${params.count}" is not an integer`);
+        const extKeysArray = params.extKeys.split(',');
+        extKeysArray.forEach(_ => {
+            assert(isValidExtKey(_, NETWORKS[params.network]), `${_} is not a valid ext key for network ${params.network}`);
+        });
+        assert(extKeysArray.length >= +params.threshold, `threshold M should be less than or equal to number N of provided extpub keys (M=${+params.threshold}/N=${extKeysArray.length})`);
     } else {
-        // normal public keys
-        const pubKeys = params.pubKeys;
-        assert(Array.isArray(pubKeys), '--pub-keys should be as a comma separated list of public keys');
-        pubKeys.every(_ => isValidPublicKey(_));
-        assert(pubKeys.length >= +params.threshold, 'threshold should be less than number of provided public keys');
+        // just public keys
+        const pubKeysArray = params.pubKeys.split(',');
+        pubKeysArray.forEach(_ => {
+            assert(isValidPublicKey(_), `${_} is not a valid public key for EC secp256k1`);
+        });
+        assert(pubKeysArray.length >= +params.threshold, `threshold M should be less than or equal to number N of provided public keys (M=${+params.threshold}/N=${pubKeysArray.length})`);
     }
-    assert(Object.keys(MULTISIG_FUNCS).includes(params.multisigType), `Unknown multisig-type ${params.multisigType}. Valid types are: ${JSON.stringify(Object.keys(MULTISIG_FUNCS))}`);
-}
-
-if (require.main === module) {
-    // used on command line
-    program.requiredOption('-T, --multisig-type <type>', 'one of "p2sh" (classical), "p2shp2wsh" (wrapped segwit), "p2wsh" (native segwit)')
-        .requiredOption('-t, --threshold <m>', 'the "M" in "M-of-N" multisig i.e. the required number of signatures')
-        .option('-x, --xpub-keys <xpub1,xpub2,...xpubN>', '"N" xpub keys for "M-of-N" multisig; requires "--path" and optionally "--count"; recognizes key formats: [xyYzZ]pub, [tuUvV]pub')
-        .option('-p, --path <derivation-path>', '(required in case of xpub keys) the path used to derive the addresses')
-        .option('-c, --count <number>', '(only in case xpub keys are provided) number of multisig addresses to derive', 5)
-        .option('-P, --pub-keys <pubkey1,pubkey2,...pubkeyN>', '"N" simple public keys for "M-of-N" multisig')
-        .option('-n, --network <mainnet|testnet>', 'the BTC network which can be "mainnet" or "testnet" (required in case of public keys; optional in case of xpub keys)');
-
-    program.parse(process.argv);
-    validateParams({ network: program.network, threshold: program.threshold, pubKeys: program.pubKeys, xpubKeys: program.xpubKeys, path: program.path, count: program.count, multisigType: program.multisigType });
-
-    const threshold = +program.threshold;
-    const multisigType = program.multisigType;
-    const pubKeys = program.pubKeys ? program.pubKeys.split(',') : null;
-    const xpubKeys = program.xpubKeys ? program.xpubKeys.split(',') : null;
-
-    if (xpubKeys) {
-        const network = xpubKeys.every(isValidMainnetExtKey) ? 'mainnet' : 'testnet';
-        const path = new DerivationPath(program.path);
-        const count = +program.count;
-        deriveMultisig({ multisigType, threshold, network, xpubKeys, path, count, printStdOut: true });
-    } else {
-        assert(program.network, '--network is required for --pub-keys public keys');
-        deriveMultisig({ multisigType, threshold, network: program.network, pubKeys, printStdOut: true });
+    if (params.output && !['table', 'json'].includes(params.output)) {
+        throw new Error(`--output format valid values are 'table' or 'json'`);
     }
+    assert(Object.getOwnPropertyNames(MULTISIG_FUNCS).includes(params.multisigType), `Unknown multisig-type ${params.multisigType}. Valid types are: ${JSON.stringify(Object.getOwnPropertyNames(MULTISIG_FUNCS))}`);
 }

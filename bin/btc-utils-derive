@@ -10,13 +10,13 @@ program.option('-x, --ext-key <base58-extended-key>', 'an extended priv or pub k
     .option('-R, --include-root', 'whether to include the node of the given extended key as well', false)
     .option('-c, --count <number>', 'number of addresses to derive', 5)
     .option('-H, --hardened-children', 'derive hardened children under given path', false)
-    .option('-N, --network-name <btc|btctest|ltc|ltctest>', 'coin network; one of "btc", "btctest", "ltc" or "ltctest"', 'btc')
+    .option('-N, --network <btc|btctest|ltc|ltctest|doge|dogetest>', 'specifies the coin and network', 'btc')
     .option('-o, --output <table|json>', 'format for printing results; one of "table" or "json"', 'table');
 program.parse(process.argv);
 
-if (program.extKey) {
+try {
     derive(program);
-} else {
-    console.error(`ERROR: missing required parameter --ext-key\n`);
+} catch (err) {
+    console.error(`ERROR`, err);
     console.error(program.helpInformation());
 }
