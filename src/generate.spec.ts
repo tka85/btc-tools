@@ -1,6 +1,6 @@
 import { generateMnemonic, generateSeed, generateExtKey, generateKeyPair } from './generate';
 import bip39 = require('bip39');
-import { equal } from 'assert';
+import { strictEqual } from 'assert';
 import { isValidExtKey, NETWORKS } from './lib/utils';
 
 describe('generate', () => {
@@ -8,152 +8,151 @@ describe('generate', () => {
         it('should generate a 24-word mnemonic in english', () => {
             const mnemonic = generateMnemonic({});
             for (const word of mnemonic.split(' ')) {
-                equal(bip39.wordlists.english.includes(word), true);
+                strictEqual(bip39.wordlists.english.includes(word), true);
             }
         });
         it('should generate a 24-word mnemonic in spanish', () => {
             const mnemonic = generateMnemonic({ lang: 'es' });
             for (const word of mnemonic.split(' ')) {
-                equal(bip39.wordlists.spanish.includes(word), true);
+                strictEqual(bip39.wordlists.spanish.includes(word), true);
             }
         });
         it('should generate a 24-word mnemonic in french', () => {
             const mnemonic = generateMnemonic({ lang: 'fr' });
             for (const word of mnemonic.split(' ')) {
-                equal(bip39.wordlists.french.includes(word), true);
+                strictEqual(bip39.wordlists.french.includes(word), true);
             }
         });
         it('should generate a 24-word mnemonic in italian', () => {
             const mnemonic = generateMnemonic({ lang: 'it' });
             for (const word of mnemonic.split(' ')) {
-                equal(bip39.wordlists.italian.includes(word), true);
+                strictEqual(bip39.wordlists.italian.includes(word), true);
             }
         });
         it('should generate a 24-word mnemonic in japanese', () => {
             const mnemonic = generateMnemonic({ lang: 'jp' });
             for (const word of mnemonic.split(' ')) {
-                equal(bip39.wordlists.japanese.includes(word), true);
+                strictEqual(bip39.wordlists.japanese.includes(word), true);
             }
         });
         it('should generate a 24-word mnemonic in korean', () => {
             const mnemonic = generateMnemonic({ lang: 'ko' });
             for (const word of mnemonic.split(' ')) {
-                equal(bip39.wordlists.korean.includes(word), true);
+                strictEqual(bip39.wordlists.korean.includes(word), true);
             }
         });
     });
 
     it('should generate a random seed', () => {
         const seed = generateSeed();
-        equal(seed.length, 128);
+        strictEqual(seed.length, 128);
     });
 
     describe('extended keys', () => {
-
         it('should generate a random xprv', () => {
             const extKey = generateExtKey({ extKeyType: 'xprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'xprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'xprv');
         });
         it('should generate a random xpub', () => {
             const extKey = generateExtKey({ extKeyType: 'xpub' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'xpub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'xpub');
         });
         it('should generate a random yprv', () => {
             const extKey = generateExtKey({ extKeyType: 'yprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'yprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'yprv');
         });
         it('should generate a random ypub', () => {
             const extKey = generateExtKey({ extKeyType: 'ypub' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'ypub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'ypub');
         });
         it('should generate a random Yprv', () => {
             const extKey = generateExtKey({ extKeyType: 'Yprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'Yprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'Yprv');
         });
         it('should generate a random Ypub', () => {
             const extKey = generateExtKey({ extKeyType: 'Ypub' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'Ypub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'Ypub');
         });
         it('should generate a random zprv', () => {
             const extKey = generateExtKey({ extKeyType: 'zprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'zprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'zprv');
         });
         it('should generate a random zpub', () => {
             const extKey = generateExtKey({ extKeyType: 'zpub' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'zpub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'zpub');
         });
         it('should generate a random Zprv', () => {
             const extKey = generateExtKey({ extKeyType: 'Zprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'Zprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'Zprv');
         });
         it('should generate a random Zpub', () => {
             const extKey = generateExtKey({ extKeyType: 'Zpub' });
-            equal(isValidExtKey(extKey, NETWORKS.btc), true);
-            equal(extKey.slice(0, 4), 'Zpub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btc), true);
+            strictEqual(extKey.slice(0, 4), 'Zpub');
         });
         it('should generate a random tprv', () => {
             const extKey = generateExtKey({ extKeyType: 'tprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'tprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'tprv');
         });
         it('should generate a random tpub', () => {
             const extKey = generateExtKey({ extKeyType: 'tpub' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'tpub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'tpub');
         });
         it('should generate a random uprv', () => {
             const extKey = generateExtKey({ extKeyType: 'uprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'uprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'uprv');
         });
         it('should generate a random upub', () => {
             const extKey = generateExtKey({ extKeyType: 'upub' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'upub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'upub');
         });
         it('should generate a random Uprv', () => {
             const extKey = generateExtKey({ extKeyType: 'Uprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'Uprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'Uprv');
         });
         it('should generate a random Upub', () => {
             const extKey = generateExtKey({ extKeyType: 'Upub' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'Upub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'Upub');
         });
         it('should generate a random vprv', () => {
             const extKey = generateExtKey({ extKeyType: 'vprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'vprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'vprv');
         });
         it('should generate a random vpub', () => {
             const extKey = generateExtKey({ extKeyType: 'vpub' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'vpub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'vpub');
         });
         it('should generate a random Vprv', () => {
             const extKey = generateExtKey({ extKeyType: 'Vprv' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'Vprv');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'Vprv');
         });
         it('should generate a random Vpub', () => {
             const extKey = generateExtKey({ extKeyType: 'Vpub' });
-            equal(isValidExtKey(extKey, NETWORKS.btctest), true);
-            equal(extKey.slice(0, 4), 'Vpub');
+            strictEqual(isValidExtKey(extKey, NETWORKS.btctest), true);
+            strictEqual(extKey.slice(0, 4), 'Vpub');
         });
     });
 
     it('should generate a random priv/pub key pair', () => {
         const keyPair = generateKeyPair({ network: 'testnet' });
-        equal(keyPair.wif.startsWith('c'), true);
+        strictEqual(keyPair.wif.startsWith('c'), true);
     });
 });

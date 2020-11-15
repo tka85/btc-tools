@@ -1,6 +1,6 @@
 # btc-utils
 
-Collection of bitcoin utilities. Also supports litecoin and dogecoin (both mainnet and testnet for all coins).
+Collection of utilities for bitcoin and litecoin (both mainnet and testnet for all coins).
 
 Each util can be used:
 

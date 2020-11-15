@@ -2,8 +2,8 @@ import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
 import bip39 = require('bip39');
-import { convertExtendedKey } from './convert';
-import { ALL_BTC_MAINNET_EXT_KEY_PREFIXES } from './lib/utils';
+import { convert } from './convert';
+import { ALL_BTC_MAINNET_EXT_KEY_PREFIXES } from './convert';
 import shuffle = require('crypto-shuffle');
 
 const LANGS = {
@@ -68,7 +68,7 @@ export function generateExtKey({ extKeyType, output = false }: { extKeyType: 'xp
         case 'Uprv':
         case 'vprv':
         case 'Vprv':
-            extKey = convertExtendedKey({ extKey: rootNode.toBase58(), targetFormat: extKeyType });
+            extKey = convert({ extKey: rootNode.toBase58(), targetFormat: extKeyType });
             break;
         case 'xpub':
         case 'tpub':
@@ -82,7 +82,7 @@ export function generateExtKey({ extKeyType, output = false }: { extKeyType: 'xp
         case 'Upub':
         case 'vpub':
         case 'Vpub':
-            extKey = convertExtendedKey({ extKey: rootNode.neutered().toBase58(), targetFormat: extKeyType });
+            extKey = convert({ extKey: rootNode.neutered().toBase58(), targetFormat: extKeyType });
             break;
         default:
             throw new Error(`Invalid extKeyType "${extKeyType}"`);

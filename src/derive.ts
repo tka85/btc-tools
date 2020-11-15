@@ -4,8 +4,9 @@
 import assert = require('assert');
 import bitcoinjs = require('bitcoinjs-lib');
 import bip32 = require('bip32');
-import { normalizeExtKey, getP2PKH, getP2SHP2WPKH, getP2WPKH, isValidExtKey, NETWORKS } from './lib/utils';
+import { isValidExtKey, NETWORKS } from './lib/utils';
 import { DerivationPath } from './lib/DerivationPath';
+import { normalizeExtKey } from './convert';
 
 type Row = {
     path?: string,
@@ -32,7 +33,7 @@ type DeriveParams = {
     count?: number,
     hardenedChildren?: boolean,
     output?: 'table' | 'json',
-    network?: 'btc' | 'btctest' | 'ltc' | 'ltctest' | 'doge' | 'dogetest'
+    network: 'btc' | 'btctest' | 'ltc' | 'ltctest'
 };
 
 const COLUMNS = ['path', 'depth', 'p2pkh', 'p2sh_p2wpkh', 'p2wpkh', 'xprv', 'xpub', 'privkey', 'pubkey', 'pubkey_hash', 'wif', 'fingerprint'];
@@ -40,7 +41,60 @@ const COLUMN_SYNONYMS = ['legacy', 'bech32',];
 const DEFAULT_COLUMNS = 'path,depth,p2pkh,p2sh_p2wpkh,p2wpkh,wif,pubkey';
 const ALL_COLUMNS = COLUMNS.concat(COLUMN_SYNONYMS);
 
-export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, network = 'btc' }: DeriveParams) {
+/**
+ * Evaluate legacy address from HD node or ECPair or public key in hex as string or public key buffer
+ */
+function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
+    let pubkey;
+    if (typeof from === 'string' || from instanceof String) {
+        pubkey = Buffer.from(from as string, 'hex');
+    } else if (Buffer.isBuffer(from)) {
+        // Already a pubkey buffer
+        pubkey = from;
+    } else {
+        // HD node or ECPair
+        pubkey = from.publicKey;
+    }
+    return bitcoinjs.payments.p2pkh({ pubkey, network }).address;
+}
+
+/**
+ * Evaluate p2sh wrapped segwit address from HD node or ECPair or public key in hex as string or public key buffer
+ */
+function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
+    let pubkey;
+    if (typeof from === 'string' || from instanceof String) {
+        pubkey = Buffer.from(from as string, 'hex');
+    } else if (Buffer.isBuffer(from)) {
+        // Already a pubkey buffer
+        pubkey = from;
+    } else {
+        // HD node or ECPair
+        pubkey = from.publicKey;
+    }
+    return bitcoinjs.payments.p2sh({
+        redeem: bitcoinjs.payments.p2wpkh({ pubkey, network })
+    }).address;
+}
+
+/**
+ * Evaluate native segwit (bech32) address from HD node or ECPair or public key in hex as string or public key buffer
+ */
+function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
+    let pubkey;
+    if (typeof from === 'string' || from instanceof String) {
+        pubkey = Buffer.from(from as string, 'hex');
+    } else if (Buffer.isBuffer(from)) {
+        // Already a pubkey buffer
+        pubkey = from;
+    } else {
+        // HD node or ECPair
+        pubkey = from.publicKey;
+    }
+    return bitcoinjs.payments.p2wpkh({ pubkey, network }).address;
+}
+
+export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, network }: DeriveParams) {
     assert(extKey, 'missing extKey');
     assert(path, 'missing path');
     // Validate params that can be validated
@@ -134,7 +188,7 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
 }
 
 function validateParams(params: DeriveParams): void {
-    if (params.network && !NETWORKS[params.network]) {
+    if (!params.network || !NETWORKS[params.network]) {
         throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
     }
     if (!isValidExtKey(params.extKey, NETWORKS[params.network])) {

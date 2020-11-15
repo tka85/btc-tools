@@ -2,19 +2,16 @@
 
 const program = require('commander');
 program.options = [];
-const { convertExtendedKey, convertWIF2PrivKeyBuffer } = require('../dist/src/convert');
+const { convert } = require('../dist/src/convert');
 
 program.option('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
     .option('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
-    .option('-w, --wif <WIF>', 'convert WIF representation of private key into a buffer');
+    .option('-w, --wif <WIF>', 'convert WIF to private key buffer');
 program.parse(process.argv);
 
 try {
-    if (program.extKey && program.targetFormat) {
-        console.log(convertExtendedKey(program));
-    } else if (program.wif) {
-        console.log(convertWIF2PrivKeyBuffer(program));
-    }
+    program.output = true;
+    convert(program);
 } catch (err) {
     console.error(`ERROR:`, err);
     console.error(program.helpInformation());
