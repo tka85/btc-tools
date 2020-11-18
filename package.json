@@ -1,13 +1,13 @@
 {
-  "name": "btc-utils",
+  "name": "btc-tools",
   "version": "2.0.0",
   "description": "bitcoin/litecoin utilities",
   "main": "dist/index.js",
   "bin": {
-    "btc-utils-derive": "./bin/btc-utils-derive",
-    "btc-utils-generate": "./bin/btc-utils-generate",
-    "btc-utils-convert": "./bin/btc-utils-convert",
-    "btc-utils-multisig": "./bin/btc-utils-multisig"
+    "btc-tools-derive": "./bin/btc-tools-derive",
+    "btc-tools-generate": "./bin/btc-tools-generate",
+    "btc-tools-convert": "./bin/btc-tools-convert",
+    "btc-tools-multisig": "./bin/btc-tools-multisig"
   },
   "scripts": {
     "build": "rm -rf dist/* && npm run lint && tsc",
@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tka85/btc-utils.git"
+    "url": "git+https://github.com/tka85/btc-tools.git"
   },
   "author": "tka85",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tka85/btc-utils/issues"
+    "url": "https://github.com/tka85/btc-tools/issues"
   },
-  "homepage": "https://github.com/tka85/btc-utils#readme",
+  "homepage": "https://github.com/tka85/btc-tools#readme",
   "dependencies": {
     "@types/node": "13.7.0",
     "bip32": "2.0.5",

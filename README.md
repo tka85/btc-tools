@@ -1,4 +1,4 @@
-# btc-utils
+# btc-tools
 
 Collection of utilities for bitcoin and litecoin (both mainnet and testnet for all coins).
 
@@ -10,16 +10,16 @@ Each util can be used:
 Command line utils will be symlinked by npm into `prefix/bin` (e.g. `/usr/local/bin` on Ubuntu) for global installs:
 
 ```bash
-npm i -g btc-utils
+npm i -g btc-tools
 ```
 
 or `./node_modules/.bin/` for local installs:
 
 ```bash
-npm i btc-utils
+npm i btc-tools
 ```
 
-Their utils are prefixed with `btc-utils-` like for example `btc-utils-derive` or `btc-utils-generate`. They print their output on stdout and you can choose between table and json format.
+Their utils are prefixed with `btc-tools-` like for example `btc-tools-derive` or `btc-tools-generate`. They print their output on stdout and you can choose between table and json format.
 
 ## 'derive'
 
@@ -34,14 +34,14 @@ All following examples evaluate root + 2 derived addresses for several paths.
 ### Usage on cli
 
 ```bash
-btc-utils-derive -h
+btc-tools-derive -h
 ```
 
 #### No path
 
 ```bash
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
 ```
 
 all have same output:
@@ -59,12 +59,12 @@ all have same output:
 #### Path 0
 
 ```bash
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -p "m/0/" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
 ```
 
 all have same output:
@@ -85,12 +85,12 @@ Note: path containing hardened component, requires extended private key.
 Hardened components in path string are denoted by prime `"<number>'"` or by `"<number>h"`.
 
 ```bash
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0'" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0h" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest
 ```
 
 all have same output:
@@ -111,12 +111,12 @@ Note: path containing hardened component, requires extended private key.
 To request that the derived children are also hardened, use `-H`.
 
 ```bash
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
-btc-utils-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "m/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "/0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
+btc-tools-derive -x tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK -p "0" -C path,legacy,p2sh_p2wpkh,bech32,depth -R -c 2 -N btctest -H
 ```
 
 all have same output (notice how final component of path is hardened):
@@ -134,7 +134,7 @@ all have same output (notice how final component of path is hardened):
 ### Usage as module
 
 ```javascript
-const { derive } = require('btc-utils');
+const { derive } = require('btc-tools');
 
 derive({
   extKey: 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B',
@@ -186,13 +186,13 @@ It also converts WIF to privkey buffer and vice versa.
 ### Usage on cli
 
 ```bash
-btc-utils-convert -h
+btc-tools-convert -h
 ```
 
 #### Convert from upub to tpub
 
 ```bash
-btc-utils-convert -x upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -t tpub
+btc-tools-convert -x upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa -t tpub
 ```
 
 returns `tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B`.
@@ -200,7 +200,7 @@ returns `tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQva
 #### Convert from tpub to upub
 
 ```bash
-btc-utils-convert -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -t upub
+btc-tools-convert -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B -t upub
 ```
 
 returns `upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa`.
@@ -208,7 +208,7 @@ returns `upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6h
 ### Usage as module
 
 ```javascript
-const { convert }  = require('btc-utils');
+const { convert }  = require('btc-tools');
 
 convert({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
 ```
@@ -225,20 +225,20 @@ Generates random:
 ### Usage on cli
 
 ```bash
-btc-utils-generate -h
+btc-tools-generate -h
 ```
 
 #### Generate a bip39 mnemonic
 
 ```bash
-btc-utils-generate -m en
+btc-tools-generate -m en
 ```
 
 returns (example) `inspire symptom sadness voice leaf slam worry cricket wave cube meat evoke vintage oval true tortoise stone airport duck cart caught ladder spy affair`.
 #### Generate a bip32 seed
 
 ```bash
-btc-utils-generate -s
+btc-tools-generate -s
 ```
 
 returns (example) `2b9912a3b1f16ed40ac481b4a7c58a2e85a4da63f7399aace1b76b89f91b14b6765ba66a318e7475b5b0cbfc31d2518e4ad9be0dda00bf0d0b1196aa3c9539a2`.
@@ -246,13 +246,13 @@ returns (example) `2b9912a3b1f16ed40ac481b4a7c58a2e85a4da63f7399aace1b76b89f91b1
 #### Generate an extended key
 
 ```bash
-btc-utils-generate -x xprv
+btc-tools-generate -x xprv
 ```
 
 returnes (example) `xprv9s21ZrQH143K3PZLGMhS94yDTHvsukf29k47mjvcCuMhaNDwPcRB9wPm1wDit7scpH2QpEdvsoTt4eZVaeZMBZFkLfddNypDKWSygBqkVKQ`.
 
 ```bash
-btc-utils-generate -x tpub
+btc-tools-generate -x tpub
 ```
 
 returns (example) `tpubD6NzVbkrYhZ4YerTmAcxhz2b7DsvGgNRqbH2YQRamzMi24nK7fJQy5vo6iGRivRxv6xV7fJQRUV6v6YahvHK6Q2fJMB5hMWGoSATNnv18Lm`.
@@ -260,7 +260,7 @@ returns (example) `tpubD6NzVbkrYhZ4YerTmAcxhz2b7DsvGgNRqbH2YQRamzMi24nK7fJQy5vo6
 #### Generate a priv/pub key pair
 
 ```bash
-btc-utils-generate -k
+btc-tools-generate -k
 ```
 
 returns (example):
@@ -276,7 +276,7 @@ returns (example):
 ```
 
 ```bash
-btc-utils-generate -k
+btc-tools-generate -k
 ```
 
 returns (example):
@@ -294,7 +294,7 @@ returns (example):
 ### Usage as module
 
 ```javascript
-const { generate } = require('btc-utils');
+const { generate } = require('btc-tools');
 
 generate({mnemonicLang: 'jp'}); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
 generate({seed: true}); // '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
@@ -321,13 +321,13 @@ Supported multisig formats (`--multisig-type, -T` parameter):
 ### Usage on cli
 
 ```bash
-btc-utils-multisig -h
+btc-tools-multisig -h
 ```
 
 #### Single multisig address from public keys
 
 ```bash
-btc-utils-multisig  -T p2sh -P 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7,03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0,023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 -t 2 -N btctest -o json
+btc-tools-multisig  -T p2sh -P 02c97dc3f4420402e01a113984311bf4a1b8de376cac0bdcfaf1b3ac81f13433c7,03db2cbac96f03440f9e7a58f43f62d3e71b90d6b4b202bd75c0ec096d4d71efe0,023a04b2aaadfa39488dafe77a18b123f00300cc2ddcf99ae8c2114b5bf6c29772 -t 2 -N btctest -o json
 ```
 
 will output:
@@ -352,7 +352,7 @@ will output:
 #### Multiple multisig addresses from extended public keys
 
 ```bash
-btc-utils-multisig  -T p2sh -t 2 -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B,tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW,tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32 -p 0 -c 1 -N btctest -o json
+btc-tools-multisig  -T p2sh -t 2 -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B,tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW,tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32 -p 0 -c 1 -N btctest -o json
 ```
 
 will output:
@@ -378,7 +378,7 @@ will output:
 ### Usage as module
 
 ```javascript
-const { multisig } = require('btc-utils');
+const { multisig } = require('btc-tools');
 
 multisig({ multisigType: 'p2sh', threshold: 2, extKeys: 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B,tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW,tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32', path: '0', count: 1, network: 'btctest' });
 // [
