@@ -1,4 +1,3 @@
-import assert = require('assert');
 import { normalizeExtKey } from '../convert';
 import bitcoinjs = require('bitcoinjs-lib');
 import secp256k1 = require('tiny-secp256k1');

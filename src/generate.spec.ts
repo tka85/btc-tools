@@ -151,7 +151,7 @@ describe('generate', () => {
         });
     });
 
-    it('should generate a random priv/pub key pair', () => {
+    it('should generate a random priv/pub key pair on secp256k1', () => {
         const keyPair = generate({ keyPair: true }) as KeyPair;
         strictEqual(isValidPublicKey(keyPair.pubKey), true);
         strictEqual(isValidPrivateKey(keyPair.privKey), true);
