@@ -1,5 +1,7 @@
 import bs58Check = require('bs58check');
 import assert = require('assert');
+import bitcoinjs = require('bitcoinjs-lib');
+import { isValidPrivateKey, NETWORKS } from './lib/utils';
 
 export const BTC_MAINNET_XPRV_PREFIXES = ['xprv', 'yprv', 'Yprv', 'zprv', 'Zprv'];
 export const BTC_MAINNET_XPUB_PREFIXES = ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub'];
@@ -45,7 +47,9 @@ const EXT_KEY_DATA = {
 type ConvertParams = {
     extKey?: string,
     targetFormat?: string,
+    privKey?: string,
     wif?: string,
+    network?: string,
     output?: boolean
 };
 
@@ -91,14 +95,22 @@ function convertWIF2PrivKey({ wif, output = false }: ConvertParams): string {
     return keyBuffer.toString('hex');
 }
 
+function convertPrivKey2WIF({ privKey, network, output = false }: ConvertParams): string {
+    const wif = bitcoinjs.ECPair.fromPrivateKey(Buffer.from(privKey, 'hex'), { network: NETWORKS[network] }).toWIF();
+    if (output) {
+        console.log(wif);
+    }
+    return wif;
+}
+
 function validateParams(params: ConvertParams): void {
     if ((params.extKey && !params.targetFormat) ||
         (!params.extKey && params.targetFormat) ||
-        (!params.extKey && !params.targetFormat && !params.wif)) {
-        throw new Error('Too few params. Should provide either --ext-key and --target-format or --wif.');
+        (!params.extKey && !params.targetFormat && !params.privKey && !params.wif)) {
+        throw new Error('Too few params. Should provide at least one of:\n (1) --ext-key and --target-format\n (2) --privKey and (optionally) --network\n (3) --wif');
     }
-    if ((params.extKey && params.wif) || (params.targetFormat && params.wif)) {
-        throw new Error('Too many parameters. Should provide either --ext-key and --target-format or --wif.');
+    if ((params.extKey && params.wif) || (params.privKey && params.wif) || params.extKey && params.privKey) {
+        throw new Error('Too many parameters. Should provide only one of:\n (1) --ext-key and --target-format\n (2) --privKey and (optionally) --network\n (3) --wif');
     }
     if (params.extKey) {
         // check if source => target formats is meaningful
@@ -109,6 +121,14 @@ function validateParams(params: ConvertParams): void {
     }
     if (params.targetFormat && !Object.getOwnPropertyNames(EXT_KEY_DATA).includes(params.targetFormat)) {
         throw new Error(`Invalid target-format: "${params.targetFormat}"; valid target-formats are ${JSON.stringify(Object.getOwnPropertyNames(EXT_KEY_DATA))}`);
+    }
+    if (params.privKey) {
+        if (!isValidPrivateKey(params.privKey)) {
+            throw new Error('Invalid privKey for secp256k1');
+        }
+        if (params.network && !NETWORKS[params.network]) {
+            throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
+        }
     }
 }
 
@@ -123,10 +143,12 @@ export function normalizeExtKey(extKey: string): string {
     return convertExtendedKey({ extKey, targetFormat });
 }
 
-export function convert({ extKey, targetFormat, wif, output }: ConvertParams): string {
-    validateParams({ extKey, targetFormat, wif });
+export function convert({ extKey, targetFormat, privKey, network, wif, output }: ConvertParams): string {
+    validateParams({ extKey, targetFormat, privKey, network, wif });
     if (extKey) {
         return convertExtendedKey({ extKey, targetFormat, output });
+    } else if (privKey) {
+        return convertPrivKey2WIF({ privKey, network, output });
     } else if (wif) {
         return convertWIF2PrivKey({ wif, output });
     }

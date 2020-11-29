@@ -6,7 +6,9 @@ const { convert } = require('../dist/src/convert');
 
 program.option('-x, --ext-key <base58ExtendedKey>', 'an extended prv or pub key')
     .option('-t, --target-format <extendedKeyType>', 'the format to convert the given source key into; recognized types: [xyYzZ]prv, [xyYzZ]pub, [tuUvV]prv, [tuUvV]pub')
-    .option('-w, --wif <WIF>', 'convert WIF to private key buffer');
+    .option('-p, --priv-key <privKey>', 'a private key to convert to WIF (optionally provide --network)')
+    .option('-N, --network <btc|btctest|ltc|ltctest>', 'specifies the coin and network for converting a private key to WIF', 'btc')
+    .option('-w, --wif <WIF>', 'a WIF to convert to the private key');
 program.parse(process.argv);
 
 try {

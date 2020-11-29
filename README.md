@@ -19,7 +19,14 @@ or `./node_modules/.bin/` for local installs:
 npm i btc-tools
 ```
 
-Their utils are prefixed with `btc-tools-` like for example `btc-tools-derive` or `btc-tools-generate`. They print their output on stdout and you can choose between table and json format.
+The command line utils are prefixed with `btc-tools-` and they are:
+
+* `btc-tools-derive`
+* `btc-tools-convert`
+* `btc-tools-generate`
+* `btc-tools-multisig`
+
+All print their output on stdout and you can choose between table and json format.
 
 ## 'derive'
 
@@ -170,9 +177,11 @@ derive({
 
 ## 'convert'
 
-Utility that does conversions.
+Utility that does conversions:
 
-It can convert from one type of extended key to another. Despite the name it applies to extended private and as well as extended public keys.
+1. It can convert from one type of extended key to another. Despite the name it applies to extended private and as well as extended public keys.
+1. privKey to WIF
+1. WIF to privkey
 
 Meaningful conversions between any two of same group:
 
@@ -180,8 +189,6 @@ Meaningful conversions between any two of same group:
 * mainnet xpub: ['xpub', 'ypub', 'Ypub', 'zpub', 'Zpub']
 * testnet xprv: ['tprv', 'uprv', 'Uprv', 'vprv', 'Vprv']
 * testnet xpub: ['tpub', 'upub', 'Upub', 'vpub', 'Vpub']
-
-It also converts WIF to privkey buffer and vice versa.
 
 ### Usage on cli
 
@@ -205,12 +212,35 @@ btc-tools-convert -x tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJU
 
 returns `upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa`.
 
+#### Convert privKey to WIF
+
+```bash
+btc-tools-convert -p c4887b4c9002431d06abc1826c1a3664468fe69a1111ae3834cf5ed0bf149ae4 -N btctest
+```
+
+returns `cUAjfPW8hpMWoqoAiBdY9tXEQ2wYfbTdUV7MGZUTEkeqsgft4QTJ`.
+
+#### Convert WIF to privKey
+
+```bash
+btc-tools-convert -w cUAjfPW8hpMWoqoAiBdY9tXEQ2wYfbTdUV7MGZUTEkeqsgft4QTJ
+```
+
+returns `c4887b4c9002431d06abc1826c1a3664468fe69a1111ae3834cf5ed0bf149ae4`.
+
 ### Usage as module
 
 ```javascript
 const { convert }  = require('btc-tools');
 
-convert({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' }); // tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
+convert({ extKey: 'upub57Wa4MvRPNyAgtkF2XqxakywVjGkAYz16TiipVbiW7WGuzwSvYGXxfq238NXK4NoQ6hUGE92Fo1GCQTQRvr1pxQTiq3iz35kvo2XYU7ZfFa', targetFormat: 'tpub' });
+// tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B
+
+convert({privKey: 'c4887b4c9002431d06abc1826c1a3664468fe69a1111ae3834cf5ed0bf149ae4', network: 'btctest'});
+// cUAjfPW8hpMWoqoAiBdY9tXEQ2wYfbTdUV7MGZUTEkeqsgft4QTJ
+
+convert({wif: 'cUAjfPW8hpMWoqoAiBdY9tXEQ2wYfbTdUV7MGZUTEkeqsgft4QTJ'});
+// c4887b4c9002431d06abc1826c1a3664468fe69a1111ae3834cf5ed0bf149ae4
 ```
 
 ## 'generate'
@@ -269,7 +299,6 @@ returns (example):
 ┌───────────┬──────────────────────────────────────────────────────────────────────┐
 │  (index)  │                                Values                                │
 ├───────────┼──────────────────────────────────────────────────────────────────────┤
-│    wif    │        'cUAjfPW8hpMWoqoAiBdY9tXEQ2wYfbTdUV7MGZUTEkeqsgft4QTJ'        │
 │  privKey  │  'c4887b4c9002431d06abc1826c1a3664468fe69a1111ae3834cf5ed0bf149ae4'  │
 │  pubKey   │ '027a8e6e49f63bcd9013d1ad79674d099b17476d0ba664f6a5419abe5931c3e17c' │
 └───────────┴──────────────────────────────────────────────────────────────────────┘
@@ -285,7 +314,6 @@ returns (example):
 ┌───────────┬──────────────────────────────────────────────────────────────────────┐
 │  (index)  │                                Values                                │
 ├───────────┼──────────────────────────────────────────────────────────────────────┤
-│    wif    │        'L4XGX27a5nXEWafq9E3e4e35nZ6eqsutNuT1FE2omnmPnXgEXwga'        │
 │  privKey  │  'd9e4ddc0f9cff802f9b1c610f800f133037f14bf1f62dfd640226852360d2197'  │
 │  pubKey   │ '03e4163a5335e07f190d4f38e0ed6e4512b4be4a98b7ded15f74925377f66e7a59' │
 └───────────┴──────────────────────────────────────────────────────────────────────┘
@@ -296,11 +324,16 @@ returns (example):
 ```javascript
 const { generate } = require('btc-tools');
 
-generate({mnemonicLang: 'jp'}); // くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
-generate({seed: true}); // '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
-generate({extKeyType: 'xpub'}); // xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
-generate({extKeyType: 'tprv'}); // tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
-generate({keyPair: true}); // { privKey: '5917b39187ad5dbd2cfe5137e6aa6dc5bd28b67b651b6b72df2ba2d78a882106', publicKey: '039669a78ff2487e02604b0be6c9d9b5cc7ecd4dfa770f68e40b30e187fbcd110c' }
+generate({mnemonicLang: 'jp'});
+// くげÿん ざÿいたく くるま いそがÿしい よしゅう みやげÿ れんぞÿく ほあん はけん ことし けおとす げÿつれい きどÿう つたえる めぐÿまれる しいん ふうせん みなと ないしょ うぶÿごÿえ すんぜÿん はしごÿ おうたい すける
+generate({seed: true});
+// '1614878403da35d2168336a98531028f013103951baf2bedff01aa2a0bd862240233582c5df9467e639dfb0ca24df51acbc8132c3f4a4b93e0789c00c9608a31'
+generate({extKeyType: 'xpub'});
+// xpub661MyMwAqRbcGidYzhKCcBC1DMLx63zEYR5RpXRcY7Pn1zg32M1KZmhCDzgFz8xyxjV8sMqiAuj2QnzJG3T7YYFyMa2fcfcbNqRQ6vKqwHc
+generate({extKeyType: 'tprv'});
+// tprv8ZgxMBicQKsPeQVsuJ4r6oekXyT377JTjignxfP9KyufPh9Nr1h6QTZ893AEQXUXzZPyBiMVsaanVyNcDebFtsH3XjVFJDQnh8uN6ug8Bo7
+generate({keyPair: true});
+// { privKey: '5917b39187ad5dbd2cfe5137e6aa6dc5bd28b67b651b6b72df2ba2d78a882106', publicKey: '039669a78ff2487e02604b0be6c9d9b5cc7ecd4dfa770f68e40b30e187fbcd110c' }
 ```
 
 ## 'multisig'

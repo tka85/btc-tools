@@ -120,7 +120,9 @@ function generateKeyPair({ output = false }: GenerateParams): KeyPair {
 }
 
 function validateParams(params: GenerateParams): void {
-    // TODO: implement
+    if (Object.values(params).every(_ => _ === undefined)) {
+        throw new Error('Too few params. Should provide at least one of:\n (1) --seed\n (2) --mnemonic-lang\n (3) --key-pair\n (4) --ext-key-type');
+    }
     return;
 }
 
