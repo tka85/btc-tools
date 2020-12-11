@@ -4,10 +4,10 @@
   "description": "bitcoin/litecoin utilities",
   "main": "dist/index.js",
   "bin": {
-    "btc-tools-derive": "./bin/btc-tools-derive",
-    "btc-tools-generate": "./bin/btc-tools-generate",
-    "btc-tools-convert": "./bin/btc-tools-convert",
-    "btc-tools-multisig": "./bin/btc-tools-multisig"
+    "btc-tools-derive": "bin/btc-tools-derive",
+    "btc-tools-generate": "bin/btc-tools-generate",
+    "btc-tools-convert": "bin/btc-tools-convert",
+    "btc-tools-multisig": "bin/btc-tools-multisig"
   },
   "scripts": {
     "build": "rm -rf dist/* && npm run lint && tsc",
@@ -33,11 +33,11 @@
     "bip38": "3.0.0",
     "bip39": "3.0.2",
     "bitcoinjs-lib": "5.1.7",
-    "bitcore-lib": "8.23.1",
-    "bitcore-p2p": "8.19.0",
     "bs58check": "2.1.2",
+    "btc-p2p": "github:tka85/btc-p2p",
     "commander": "4.1.1",
     "crypto-shuffle": "1.0.1",
+    "json-rpc2": "2.0.0",
     "slip39": "0.1.6",
     "tiny-secp256k1": "1.1.5",
     "wif": "2.0.6"
