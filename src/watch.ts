@@ -1,34 +1,34 @@
 import bitcoinjs = require('bitcoinjs-lib');
 import { BTCNetwork } from 'btc-p2p';
-import { inspect } from 'util';
+import JsonRpc from './lib/JsonRpc';
+import config from './config.json';
+import { NETWORKS } from './lib/utils';
+import Big = require('big.js');
 
 const BTC_MAINNET = {
     magic: 0xD9B4BEF9,
     port: 8333,
-    minPeers: 1,
-    maxPeers: 3
+    network: NETWORKS.btc
 };
 const BTC_TESTNET = {
     magic: 0x0709110B,
     port: 18333,
-    minPeers: 1,
-    maxPeers: 3
+    network: NETWORKS.btctest
 
 };
 const LTC_MAINNET = {
     magic: 0xD9B4BEF9,
     port: 8333,
-    minPeers: 1,
-    maxPeers: 3
+    network: NETWORKS.ltc
 };
 const LTC_TESTNET = {
     magic: 0xF1C8D2FD,
     port: 18333,
-    minPeers: 1,
-    maxPeers: 3
+    network: NETWORKS.ltc
 };
 
-const p2p = new BTCNetwork(BTC_TESTNET);
+const netOptions = BTC_TESTNET;
+const p2p = new BTCNetwork(netOptions);
 
 // Given string in hex, change LE to BE and vice versa
 function flipEndianess(str) {
@@ -39,6 +39,10 @@ function flipEndianess(str) {
         len -= 2;
     }
     return result.join('');
+}
+
+function isWatchedAddress(addr) {
+    return config.watch.includes(addr);
 }
 
 process.once('SIGINT', () => {
@@ -55,19 +59,29 @@ p2p.on('error', (d) => {
     console.log('(' + d.severity + '): ' + d.message);
 });
 
-p2p.on('transactionInv', function transactionInv(d) {
+p2p.on('transactionInv', (d) => {
     console.log('Peer ' + d.peer.getUUID() + ' knows of Transaction ' + flipEndianess(d.hash.toString('hex')));
-    p2p.getData({ type: 1, hash: d.hash }, d.peer, (err, rs) => {
+    p2p.getData({ type: 1, hash: d.hash }, d.peer, async (err, rs) => {
         if (err !== false) {
             console.log('Data returned error: ' + err);
             return;
         }
-        console.log('TX Hash >>>:', flipEndianess(rs[0].data.hash.toString('hex')));
-        console.log('TX Data >>>:', inspect(rs, { depth: null }));
+        const txHash = flipEndianess(rs[0].data.hash.toString('hex'));
+        console.log('Fetching details of Tx', txHash);
+        const rawTx = await JsonRpc.doRequest('getrawtransaction', [txHash]);
+        const decodedTx = await JsonRpc.doRequest('decoderawtransaction', [rawTx]);
+        console.log(`>>> Decoded Tx ${txHash}`, decodedTx);
+        decodedTx.vout.forEach((out) => {
+            const addr = bitcoinjs.address.fromOutputScript(Buffer.from(out.scriptPubKey.hex, 'hex'), netOptions.network);
+            if (isWatchedAddress(addr)) {
+                const amount = Big(out.value);
+                console.log(`>>> Deposit into ${addr} for ${amount.toString()} coins (${amount.times(1e8).toNumber()} sats)`);
+            }
+        });
     });
 });
 
-p2p.launch([{ host: 'localhost', port: 18333 }]);
+p2p.launch([{ host: config.daemon.host, port: config.daemon.port }]);
 
 // const messages = new Messages({ network: Networks.testnet });
 // pool = new Pool({ network: Networks.testnet });
