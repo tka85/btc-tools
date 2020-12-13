@@ -1,141 +1,176 @@
-import bitcoinjs = require('bitcoinjs-lib');
+import assert = require('assert');
 import { BTCNetwork } from 'btc-p2p';
 import JsonRpc from './lib/JsonRpc';
-import config from './config.json';
-import { NETWORKS } from './lib/utils';
-import Big = require('big.js');
+import { flipEndianess, NETWORKS } from './lib/utils';
+import { Big } from 'big.js';
+import { inspect } from 'util';
 
-const BTC_MAINNET = {
-    magic: 0xD9B4BEF9,
-    port: 8333,
-    network: NETWORKS.btc
-};
-const BTC_TESTNET = {
-    magic: 0x0709110B,
-    port: 18333,
-    network: NETWORKS.btctest
+const cache = {};
+const pending = [];
 
-};
-const LTC_MAINNET = {
-    magic: 0xD9B4BEF9,
-    port: 8333,
-    network: NETWORKS.ltc
-};
-const LTC_TESTNET = {
-    magic: 0xF1C8D2FD,
-    port: 18333,
-    network: NETWORKS.ltc
-};
-
-const netOptions = BTC_TESTNET;
-const p2p = new BTCNetwork(netOptions);
-
-// Given string in hex, change LE to BE and vice versa
-function flipEndianess(str) {
-    const result = [];
-    let len = str.length - 2;
-    while (len >= 0) {
-        result.push(str.substr(len, 2));
-        len -= 2;
-    }
-    return result.join('');
+const DNS_SEEDS = {
+    btc: ['bitseed.xf2.org', 'dnsseed.bluematt.me', 'seed.bitcoin.sipa.be', 'dnsseed.bitcoin.dashjr.org'],
+    btctest: ['seed.tbtc.petertodd.org', 'testnet-seed.bitcoin.jonasschnelli.ch', 'seed.testnet.bitcoin.sprovoost.nl'],
+    ltc: ['dnsseed.litecointools.com', 'seed-a.litecoin.loshan.co.uk', 'dnsseed.thrasher.io', 'dnsseed.litecoinpool.org'],
+    ltctest: ['testnet-seed.litecointools.com', 'seed-b.litecoin.loshan.co.uk', 'dnsseed-testnet.thrasher.io']
 }
+
+const MAGIC = {
+    btc: 0xD9B4BEF9,
+    btctest: 0x0709110B,
+    ltc: 0xD9B4BEF9,
+    ltctest: 0xF1C8D2FD,
+};
+
+const P2P_PORT = {
+    btc: 8333,
+    btctest: 18333,
+    ltc: 9333,
+    ltctest: 19333
+};
+
+type watchParams = {
+    network: 'btc' | 'btctest' | 'ltc' | 'ltctest',
+    jsonRpcHost: string,
+    jsonRpcPort: number,
+    jsonRpcUser: string,
+    jsonRpcPassword: string,
+    watchList?: string,
+    watchFile: string
+};
 
 function isWatchedAddress(addr) {
-    return config.watch.includes(addr);
+    // return config.watch.includes(addr);
 }
 
-process.once('SIGINT', () => {
-    console.log('Got SIGINT; closing...');
-    process.once('SIGINT', () => {
-        // Double SIGINT; force-kill
-        process.exit(0);
+function printVout(txHash: string, vout: number, addr: string, amount: Big, watchList: string[]): void {
+    if (!watchList.includes(addr)) {
+        console.log(`> ${addr.padEnd(43, ' ')} received ${amount.toString().padEnd(16, ' ')} [${txHash}:${vout}]`);
+    } else {
+        console.log(`************************************************************************n\t> [RECEIVING] ${addr.padEnd(43, ' ')} received ${amount.toString().padEnd(16, ' ')} [${txHash}:${vout}]\n************************************************************************`);
+    }
+}
+
+function printVin(txHash: string, vin: number, vinOriginTxHash: string, spentVout: number, addr: string, spentAmount: Big, watchList: string[]): void {
+    if (!watchList.includes(addr)) {
+        console.log(`< ${addr.padEnd(43, ' ')} spent ${spentAmount.toString().padEnd(16, ' ')} [${txHash}:${vin} spending UTXO ${vinOriginTxHash}:${spentVout}]`);
+    } else {
+        console.log(`************************************************************************n\t> [SPENDING] ${addr.padEnd(43, ' ')} sent ${spentAmount.toString().padEnd(16, ' ')} [${txHash}:${vin} spending UTXO ${vinOriginTxHash}:${spentVout}]\n************************************************************************`);
+    }
+}
+
+// TODO: implement function validateParams() {}
+
+export function watch({ network, jsonRpcHost, jsonRpcPort, jsonRpcUser, jsonRpcPassword, watchList, watchFile }: watchParams): void {
+    // TODO: call validateParams({ network, jsonRpcHost, jsonRpcPort, jsonRpcUser, jsonRpcPassword, watchList, watchFile });
+
+    const addrWatchList = watchList.split(',').map(_ => _.trim());
+    console.log(`Watching addresses:`, addrWatchList);
+
+    const jsonRpc = new JsonRpc(jsonRpcHost, jsonRpcPort, jsonRpcUser, jsonRpcPassword);
+    const p2pOptions = {
+        useCache: true,
+        listen: true,
+        port: P2P_PORT[network],
+        magic: MAGIC[network],
+        minPeers: 2,
+        maxPeers: 20,
+        idleTimeout: 30 * 60 * 1000, // time out peers we haven't heard anything from in 30 minutes
+        version: 70000,
+        services: Buffer.from([1, 0, 0, 0, 0, 0, 0, 0]),
+        clientName: 'Node.js lite peer',
+        knownHeight: 0,
+        externalIP: false
+    };
+
+    const p2p = new BTCNetwork(p2pOptions);
+
+    // Error messages of various severity, from the PeerManager
+    p2p.on('error', (d) => {
+        console.log('(' + d.severity + '): ' + d.message);
     });
-    p2p.shutdown();
-});
 
-// Error messages of various severity, from the PeerManager
-p2p.on('error', (d) => {
-    console.log('(' + d.severity + '): ' + d.message);
-});
+    // p2p.on('message', function peerMessage(d) {
+    //     console.log(d.peer.getUUID() + ': message', d.command, d.data);
+    // });
 
-p2p.on('transactionInv', (d) => {
-    console.log('Peer ' + d.peer.getUUID() + ' knows of Transaction ' + flipEndianess(d.hash.toString('hex')));
-    p2p.getData({ type: 1, hash: d.hash }, d.peer, async (err, rs) => {
-        if (err !== false) {
-            console.log('Data returned error: ' + err);
+    p2p.on('transactionInv', (d) => {
+        const txHash = flipEndianess(d.hash.toString('hex'));
+        if (cache[txHash]) {
+            console.log(`Skipping cached tx ${txHash}`);
             return;
         }
-        const txHash = flipEndianess(rs[0].data.hash.toString('hex'));
-        console.log('Fetching details of Tx', txHash);
-        const rawTx = await JsonRpc.doRequest('getrawtransaction', [txHash]);
-        const decodedTx = await JsonRpc.doRequest('decoderawtransaction', [rawTx]);
-        console.log(`>>> Decoded Tx ${txHash}`, decodedTx);
-        decodedTx.vout.forEach((out) => {
-            const addr = bitcoinjs.address.fromOutputScript(Buffer.from(out.scriptPubKey.hex, 'hex'), netOptions.network);
-            if (isWatchedAddress(addr)) {
-                const amount = Big(out.value);
-                console.log(`>>> Deposit into ${addr} for ${amount.toString()} coins (${amount.times(1e8).toNumber()} sats)`);
+        cache[txHash] = Date.now();
+        console.log(`Peer ${d.peer.getUUID()} knows of tx ${txHash}`);
+        p2p.getData({ type: 1, hash: d.hash }, d.peer, async (err, rs) => {
+            if (err !== false) {
+                console.log(`Error getting data for tx ${txHash}`, err);
+                return;
+            }
+            let rawTx;
+            let decodedTx;
+            console.log('Fetching details of tx', txHash);
+            try {
+                rawTx = await jsonRpc.doRequest('getrawtransaction', [txHash]);
+                decodedTx = await jsonRpc.doRequest('decoderawtransaction', [rawTx]);
+            } catch (err) {
+                console.log(`>>> transaction ${txHash} not found in local node; postponing`, err.message.match(/No such mempool or blockchain transaction/));
+                return;
+            }
+            // console.log(`Decoded Tx ${txHash}`, inspect(decodedTx, { depth: null }));
+            let vin = -1;
+            for (const input of decodedTx.vin) {
+                vin++;
+                try {
+                    // Lookup tx that generated the UTXO being spent
+                    const vinOriginTxHash = input.txid;
+                    const rawVinOriginTx = await jsonRpc.doRequest('getrawtransaction', [vinOriginTxHash]);
+                    const decodedVinOriginTx = await jsonRpc.doRequest('decoderawtransaction', [rawVinOriginTx]);
+                    const spentOutput = decodedVinOriginTx.vout[input.vout];
+                    const spentAmount = new Big(spentOutput.value);
+                    const spentVout = spentOutput.n;
+                    assert.strictEqual(spentVout, input.vout);
+                    // console.log(`>>> SPENT tx input ${txHash}:${vin} originating from ${vinOriginTxHash}:${spentVout} address`, inspect(spentOutput.scriptPubKey.addresses, { depth: null }));
+                    if (spentOutput.scriptPubKey.type === 'pubkey') {
+                        console.log(`>>> Skipping P2PK output ${vinOriginTxHash}:${spentVout}`);
+                        continue;
+                    }
+                    if (spentOutput.scriptPubKey.addresses) {
+                        for (const addr of spentOutput.scriptPubKey.addresses) {
+                            printVin(txHash, vin, vinOriginTxHash, spentVout, addr, spentAmount, addrWatchList);
+                        }
+                    }
+                } catch (err) {
+                    throw err;
+                }
+            }
+            for (const output of decodedTx.vout) {
+                const amount = new Big(output.value);
+                const vout = output.n;
+                // console.log(`>>> OUTPUT tx output ${txHash}:${vout} address`, inspect(output.scriptPubKey.addresses, { depth: null }));
+                if (output.scriptPubKey.type === 'pubkey') {
+                    console.log(`>>> Skipping P2PK output ${txHash}:${vout}`);
+                    continue;
+                }
+                if (output.scriptPubKey.addresses) {
+                    for (const addr of output.scriptPubKey.addresses) {
+                        printVout(txHash, vout, addr, amount, addrWatchList);
+                    }
+                }
+
             }
         });
     });
-});
 
-p2p.launch([{ host: config.daemon.host, port: config.daemon.port }]);
+    // Default launch using DNS seeds
+    p2p.launch();
 
-// const messages = new Messages({ network: Networks.testnet });
-// pool = new Pool({ network: Networks.testnet });
-
-// pool.on('peerinv', (peer, invMsg) => {
-//     invMsg.inventory.forEach(_ => {
-//         const txHash = _.hash;
-//         if (_.type === 1) {
-//             console.log('Getting details for TX', flipEndianess(txHash.toString('hex')));
-//             const getTxMsg = messages.GetData.forTransaction(txHash);
-//             // TODO: check if already in cache
-//             peer.sendMessage(getTxMsg);
-//         } else if (_.type === 0x40000001) {
-//             // transaction with witness data
-//             console.log(`>>> Getting details for TX WITH WITNESS DATA`, flipEndianess(txHash.toString('hex')));
-//             process.exit(1);
-//         } else if (_.type === 2) {
-//             console.log(`>>> Block hash`, flipEndianess(txHash.toString('hex')));
-//         } else {
-//             console.log('INV of unknown type=', _.type);
-//         }
-//     });
-// });
-
-// pool.on('peertx', (peer, txMsg) => {
-//     // console.log(`Details for TX`, JSON.stringify(txMsg.transaction, null, 2));
-//     // txMsg.transaction.outputs.forEach((_, idx) => {
-//     //     const output = JSON.parse(JSON.stringify(_));
-//     //     output.scriptBuff = Buffer.from(output.script, 'hex');
-//     //     console.log(`>>> OUTPUT:${idx}:`, output);
-//     //     try {
-//     //         console.log(`>>> ${output.satoshis} paid to address `, bitcoinjs.address.fromOutputScript(output.scriptBuff, bitcoinjs.networks.testnet));
-//     //     } catch (err) {
-//     //         console.log(`>>> ERROR`, err);
-//     //     }
-//     // });
-//     const txHash = txMsg.transaction.hash;
-//     console.log(`>>> txHash should be `, txHash);
-//     txMsg.transaction.inputs.forEach((_, idx) => {
-//         const input = JSON.parse(JSON.stringify(_));
-//         console.log(`>>> INPUT:${idx}`, input);
-//         if (input.script === '') {
-//             // console.log(`Details for TX`, JSON.stringify(txMsg.transaction, null, 2));
-//             console.log(`>>> WITNESS input detected; TX details:`, JSON.stringify(txMsg, null, 2));
-//             process.exit(1);
-//             // console.log(`>>> PEER `, peer);
-//             // const getWitnessTxMsg = messages.GetData.forWitnessTransaction(txHash);
-//             // peer.sendMessage(getWitnessTxMsg);
-//         } else {
-//             console.log(`>>> INPUT:${idx}: `, input);
-//         }
-//     });
-// });
-
-// pool.connect();
-
-// // pool.disconnect();
+    process.once('SIGINT', () => {
+        console.log('Got SIGINT; closing...');
+        process.once('SIGINT', () => {
+            // Double SIGINT; force-kill
+            process.exit(0);
+        });
+        p2p.shutdown();
+    });
+}

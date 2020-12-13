@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+program.options = [];
+const { watch } = require('../dist/src/watch');
+
+program.option('-N, --network <btc|btctest|ltc|ltctest>', 'specifies the coin and network', 'btc')
+    .option('-H, --json-rpc-host <host>', 'full indexed node jsonRpc host')
+    .option('-P, --json-rpc-port <port>', 'full indexed node jsonRpc port')
+    .option('-u, --json-rpc-user <user>', 'full indexed node jsonRpc user')
+    .option('-p, --json-rpc-password <password>', 'full indexed node jsonRpc password')
+    .option('-w, --watch-list <addrList>', 'comma separated list of addresses to watch')
+    .option('-f, --watch-file <addrFile>', 'file with addresses to watch (one address per line');
+program.parse(process.argv);
+
+try {
+    watch(program);
+} catch (err) {
+    console.error(`ERROR`, err);
+    console.error(program.helpInformation());
+}

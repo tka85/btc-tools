@@ -41,3 +41,14 @@ export function isValidPrivateKey(privKey: string | Buffer): boolean {
     }
     return secp256k1.isPrivate(privKey);
 }
+
+// Given string in hex, change LE to BE and vice versa
+export function flipEndianess(str) {
+    const result = [];
+    let len = str.length - 2;
+    while (len >= 0) {
+        result.push(str.substr(len, 2));
+        len -= 2;
+    }
+    return result.join('');
+}
