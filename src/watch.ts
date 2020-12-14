@@ -15,10 +15,11 @@ const DNS_SEEDS = {
     ltctest: ['testnet-seed.litecointools.com', 'seed-b.litecoin.loshan.co.uk', 'dnsseed-testnet.thrasher.io']
 }
 
-const MAGIC = {
+// P2P message start sequence
+const P2P_MAGIC = {
     btc: 0xD9B4BEF9,
     btctest: 0x0709110B,
-    ltc: 0xD9B4BEF9,
+    ltc: 0xDBB6C0FB,
     ltctest: 0xF1C8D2FD,
 };
 
@@ -36,7 +37,7 @@ type watchParams = {
     jsonRpcUser: string,
     jsonRpcPassword: string,
     watchList?: string,
-    watchFile: string
+    watchFile?: string
 };
 
 function isWatchedAddress(addr) {
@@ -72,7 +73,7 @@ export function watch({ network, jsonRpcHost, jsonRpcPort, jsonRpcUser, jsonRpcP
         useCache: true,
         listen: true,
         port: P2P_PORT[network],
-        magic: MAGIC[network],
+        magic: P2P_MAGIC[network],
         minPeers: 2,
         maxPeers: 20,
         idleTimeout: 30 * 60 * 1000, // time out peers we haven't heard anything from in 30 minutes
