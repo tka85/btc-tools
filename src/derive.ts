@@ -44,8 +44,8 @@ const ALL_COLUMNS = COLUMNS.concat(COLUMN_SYNONYMS);
 /**
  * Evaluate legacy address from HD node or ECPair or public key in hex as string or public key buffer
  */
-function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
-    let pubkey;
+const getP2PKH = (from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string => {
+    let pubkey: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer;
     if (typeof from === 'string' || from instanceof String) {
         pubkey = Buffer.from(from as string, 'hex');
     } else if (Buffer.isBuffer(from)) {
@@ -56,13 +56,13 @@ function getP2PKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | strin
         pubkey = from.publicKey;
     }
     return bitcoinjs.payments.p2pkh({ pubkey, network }).address;
-}
+};
 
 /**
  * Evaluate p2sh wrapped segwit address from HD node or ECPair or public key in hex as string or public key buffer
  */
-function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
-    let pubkey;
+const getP2SHP2WPKH = (from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string => {
+    let pubkey: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer;
     if (typeof from === 'string' || from instanceof String) {
         pubkey = Buffer.from(from as string, 'hex');
     } else if (Buffer.isBuffer(from)) {
@@ -75,13 +75,13 @@ function getP2SHP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | 
     return bitcoinjs.payments.p2sh({
         redeem: bitcoinjs.payments.p2wpkh({ pubkey, network })
     }).address;
-}
+};
 
 /**
  * Evaluate native segwit (bech32) address from HD node or ECPair or public key in hex as string or public key buffer
  */
-function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string {
-    let pubkey;
+const getP2WPKH = (from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer, network: bitcoinjs.Network): string => {
+    let pubkey: bip32.BIP32Interface | bitcoinjs.ECPairInterface | string | Buffer;
     if (typeof from === 'string' || from instanceof String) {
         pubkey = Buffer.from(from as string, 'hex');
     } else if (Buffer.isBuffer(from)) {
@@ -92,9 +92,9 @@ function getP2WPKH(from: bip32.BIP32Interface | bitcoinjs.ECPairInterface | stri
         pubkey = from.publicKey;
     }
     return bitcoinjs.payments.p2wpkh({ pubkey, network }).address;
-}
+};
 
-export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, network }: DeriveParams) {
+export const derive = ({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoot = false, count = 5, hardenedChildren = false, output = null, network }: DeriveParams): Row[] | undefined => {
     assert(extKey, 'missing extKey');
     assert(path, 'missing path');
     // Validate params that can be validated
@@ -132,9 +132,9 @@ export function derive({ extKey, path = 'm/', cols = DEFAULT_COLUMNS, includeRoo
         default:
             return result;
     }
-}
+};
 
-function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinjs.Network, cols: string[]): Row {
+const evalNextRow = (node: bip32.BIP32Interface, path: string, network: bitcoinjs.Network, cols: string[]): Row => {
     const nextRow: Row = {};
     for (const c of cols) {
         switch (c) {
@@ -185,11 +185,11 @@ function evalNextRow(node: bip32.BIP32Interface, path: string, network: bitcoinj
         }
     }
     return nextRow;
-}
+};
 
-function validateParams(params: DeriveParams): void {
+const validateParams = (params: DeriveParams): void => {
     if (!params.network || !NETWORKS[params.network]) {
-        throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
+        throw new Error(`Invalid network name ${params.network}. Valid values are: ${Object.getOwnPropertyNames(NETWORKS).join(',')}.`);
     }
     if (!isValidExtKey(params.extKey, NETWORKS[params.network])) {
         throw new Error(`Invalid param for ext key: "${params.extKey}"`);
@@ -205,4 +205,4 @@ function validateParams(params: DeriveParams): void {
     if (params.output && !['table', 'json'].includes(params.output)) {
         throw new Error(`--output format valid values are 'table' or 'json'`);
     }
-}
+};

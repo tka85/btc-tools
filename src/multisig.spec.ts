@@ -8,7 +8,7 @@ describe('multisig', () => {
     const extKeys = 'tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B,tpubD6NzVbkrYhZ4X1MhK22bdUwGstuq9gRABHLoRkm8yUMrS5WJSoo3W13RLbNBzcimJtQiYs8Nc41V9VCKEy5Y793eKK1TvkzSTAxr86wyMuW,tpubD6NzVbkrYhZ4Y3gMUefyddFS1Uob6tMSToYiLLzuWEfCs1KtTFVGZndPxiPaVPtaYebRCsSXdYZ43mWN2LnariYSWnLvLUkyQchghCcTN32';
     const network = 'btctest';
     const count = 1;
-    let path;
+    let path = '0';
 
     beforeEach(() => {
         path = '0';

@@ -23,21 +23,21 @@ export const NETWORKS: { [key: string]: bitcoinjs.Network } = {
     }
 };
 
-export function isValidExtKey(extKey: string, network: bitcoinjs.Network): boolean {
+export const isValidExtKey = (extKey: string, network: bitcoinjs.Network): boolean => {
     const node = bitcoinjs.bip32.fromBase58(normalizeExtKey(extKey), network);
     return isValidPublicKey(node.publicKey) || isValidPrivateKey(node.privateKey);
-}
+};
 
-export function isValidPublicKey(pubKey: string | Buffer): boolean {
+export const isValidPublicKey = (pubKey: string | Buffer): boolean => {
     if (typeof pubKey === 'string' || pubKey instanceof String) {
         pubKey = Buffer.from(pubKey as string, 'hex');
     }
-    return secp256k1.isPoint(pubKey);
-}
+    return secp256k1.isPoint(pubKey) as boolean;
+};
 
-export function isValidPrivateKey(privKey: string | Buffer): boolean {
+export const isValidPrivateKey = (privKey: string | Buffer): boolean => {
     if (typeof privKey === 'string' || privKey instanceof String) {
         privKey = Buffer.from(privKey as string, 'hex');
     }
-    return secp256k1.isPrivate(privKey);
-}
+    return secp256k1.isPrivate(privKey) as boolean;
+};

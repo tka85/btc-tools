@@ -11,7 +11,34 @@ export const ALL_BTC_MAINNET_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat
 export const ALL_BTC_TESTNET_EXT_KEY_PREFIXES = BTC_TESTNET_XPRV_PREFIXES.concat(BTC_TESTNET_XPUB_PREFIXES);
 export const ALL_BTC_EXT_KEY_PREFIXES = BTC_MAINNET_XPRV_PREFIXES.concat(BTC_MAINNET_XPUB_PREFIXES).concat(BTC_TESTNET_XPRV_PREFIXES).concat(BTC_TESTNET_XPUB_PREFIXES);
 
-const EXT_KEY_DATA = {
+type ExtKeyData = {
+    version: string,
+    normalized: string,
+    validTargets: string[]
+};
+
+const EXT_KEY_DATA: {
+    xprv: ExtKeyData,
+    xpub: ExtKeyData,
+    yprv: ExtKeyData,
+    ypub: ExtKeyData,
+    Yprv: ExtKeyData,
+    Ypub: ExtKeyData,
+    zprv: ExtKeyData,
+    zpub: ExtKeyData,
+    Zprv: ExtKeyData,
+    Zpub: ExtKeyData,
+    tprv: ExtKeyData,
+    tpub: ExtKeyData,
+    uprv: ExtKeyData,
+    upub: ExtKeyData,
+    Uprv: ExtKeyData,
+    Upub: ExtKeyData,
+    vprv: ExtKeyData,
+    vpub: ExtKeyData,
+    Vprv: ExtKeyData,
+    Vpub: ExtKeyData
+} = {
     // mainnet P2PKH or P2SH
     xprv: { version: '0488ade4', normalized: 'xprv', validTargets: BTC_MAINNET_XPRV_PREFIXES },
     xpub: { version: '0488b21e', normalized: 'xpub', validTargets: BTC_MAINNET_XPUB_PREFIXES },
@@ -55,18 +82,22 @@ type ConvertParams = {
 
 /**
  * Conversions are meaningful only between members of the same group but possible between any pairs:
- *      - Mainnet priv: xprv, yprv, Yprv, zprv, Zprv
- *      - Mainnet pub: xpub, ypub, Ypub, zpub, Zpub
- *      - Testnet priv: tprv, uprv, Uprv, vprv, Vprv
- *      - Testnet pub: tpub, upub, Upub, vpub, Vpub
+ * - Mainnet priv: xprv, yprv, Yprv, zprv, Zprv
+ * - Mainnet pub: xpub, ypub, Ypub, zpub, Zpub
+ * - Testnet priv: tprv, uprv, Uprv, vprv, Vprv
+ * - Testnet pub: tpub, upub, Upub, vpub, Vpub
+ *
  * @param extKey            an extended key
  * @param targetFormat      the format you want to convert the extKey into e.g. 'tpub', 'xpub' etc.
  */
-function convertExtendedKey({ extKey, targetFormat, output = false }: ConvertParams): string {
+const convertExtendedKey = ({ extKey, targetFormat, output = false }: ConvertParams): string | undefined => {
     extKey = extKey.trim();
-    let converted;
+    let converted: string;
     try {
-        converted = bs58Check.encode(Buffer.concat([Buffer.from(EXT_KEY_DATA[targetFormat].version, 'hex'), bs58Check.decode(extKey).slice(4)]));
+        converted = bs58Check.encode(Buffer.concat([
+            Buffer.from((EXT_KEY_DATA[targetFormat] as ExtKeyData).version, 'hex'),
+            (bs58Check.decode(extKey) as Buffer).slice(4)
+        ]));
     } catch (err) {
         throw new Error('Invalid extended public key' + err);
     }
@@ -75,11 +106,11 @@ function convertExtendedKey({ extKey, targetFormat, output = false }: ConvertPar
         return;
     }
     return converted;
-}
+};
 
-function convertWIF2PrivKey({ wif, output = false }: ConvertParams): string {
+const convertWIF2PrivKey = ({ wif, output = false }: ConvertParams): string | undefined => {
     // First decode WIF; decoded form is without checksum
-    let keyBuffer = bs58Check.decode(wif);
+    let keyBuffer: Buffer = bs58Check.decode(wif);
     // Drop version byte (e.g. 0xEF for btc testnet, 0x80 for btc mainnet)
     keyBuffer = keyBuffer.subarray(1, keyBuffer.length);
     // If still not 32 bytes, means it has compression byte; drop it too
@@ -91,19 +122,21 @@ function convertWIF2PrivKey({ wif, output = false }: ConvertParams): string {
     }
     if (output) {
         console.log(keyBuffer.toString('hex'));
+        return;
     }
     return keyBuffer.toString('hex');
-}
+};
 
-function convertPrivKey2WIF({ privKey, network, output = false }: ConvertParams): string {
+const convertPrivKey2WIF = ({ privKey, network, output = false }: ConvertParams): string | undefined => {
     const wif = bitcoinjs.ECPair.fromPrivateKey(Buffer.from(privKey, 'hex'), { network: NETWORKS[network] }).toWIF();
     if (output) {
         console.log(wif);
+        return;
     }
     return wif;
-}
+};
 
-function validateParams(params: ConvertParams): void {
+const validateParams = (params: ConvertParams): void => {
     if ((params.extKey && !params.targetFormat) ||
         (!params.extKey && params.targetFormat) ||
         (!params.extKey && !params.targetFormat && !params.privKey && !params.wif)) {
@@ -115,7 +148,7 @@ function validateParams(params: ConvertParams): void {
     if (params.extKey) {
         // check if source => target formats is meaningful
         const extKeyPrefix = params.extKey.slice(0, 4);
-        if (!EXT_KEY_DATA[extKeyPrefix].validTargets.includes(params.targetFormat)) {
+        if (!(EXT_KEY_DATA[extKeyPrefix] as ExtKeyData).validTargets.includes(params.targetFormat)) {
             throw new Error(`Does not make sense to convert ${extKeyPrefix} extended key to ${params.targetFormat}`);
         }
     }
@@ -127,23 +160,23 @@ function validateParams(params: ConvertParams): void {
             throw new Error('Invalid privKey for secp256k1');
         }
         if (params.network && !NETWORKS[params.network]) {
-            throw new Error(`Invalid network name ${params.network}. Valid values are ${Object.getOwnPropertyNames(NETWORKS)}.`);
+            throw new Error(`Invalid network name ${params.network}. Valid values are: ${Object.getOwnPropertyNames(NETWORKS).join(',')}.`);
         }
     }
-}
+};
 
 /**
  * Converts an extended key into corresponding format bitcoinjs-lib can understand;
  * bitcoinjs-lib only understands xprv, xpub, tprv and tpub
  */
-export function normalizeExtKey(extKey: string): string {
-    const extKeyPrefix = extKey.slice(0, 4);
-    const targetFormat = EXT_KEY_DATA[extKeyPrefix].normalized;
+export const normalizeExtKey = (extKey: string): string => {
+    const extKeyPrefix: string = extKey.slice(0, 4);
+    const targetFormat: string = (EXT_KEY_DATA[extKeyPrefix] as ExtKeyData).normalized;
     assert(targetFormat, `Do not know how to convert ext key with prefix "${extKeyPrefix}"`);
     return convertExtendedKey({ extKey, targetFormat });
-}
+};
 
-export function convert({ extKey, targetFormat, privKey, network, wif, output }: ConvertParams): string {
+export const convert = ({ extKey, targetFormat, privKey, network, wif, output }: ConvertParams): string => {
     validateParams({ extKey, targetFormat, privKey, network, wif });
     if (extKey) {
         return convertExtendedKey({ extKey, targetFormat, output });
@@ -152,4 +185,4 @@ export function convert({ extKey, targetFormat, privKey, network, wif, output }:
     } else if (wif) {
         return convertWIF2PrivKey({ wif, output });
     }
-}
+};
