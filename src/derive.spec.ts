@@ -93,7 +93,7 @@ describe('derive', () => {
         it('should derive correctly from tprv', () => {
             deepStrictEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, network: 'btctest' }), derivedNonHardenedNotNeutered);
         });
-        it('should derive correctly from tprv', () => {
+        it('should derive correctly all columns from tprv', () => {
             deepStrictEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all', network: 'btctest' }), derivedNonHardenedNotNeuteredAllColumns);
         });
         it('should derive correctly from tpub', () => {
@@ -188,19 +188,16 @@ describe('derive', () => {
         it('should fail if missing key', () => {
             throws(() => { derive({ extKey: undefined, path: '0/0', hardenedChildren: false, network: 'ltctest' }) });
         });
-        it('should fail if missing path', () => {
-            throws(() => { derive({ extKey: tpub, path: undefined, hardenedChildren: false, network: 'ltctest' }) });
-        });
         it('should fail if key is invalid', () => {
             throws(() => { derive({ extKey: invalidChecksumTpub, path: '0/0', hardenedChildren: false, network: 'ltctest' }) }, 'Error: Invalid param for ext key: "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXEL"');
         });
-        it('should fail if invalid path', () => {
+        it('should fail if path is invalid', () => {
             throws(() => { derive({ extKey: tpub, path: invalidPath, hardenedChildren: false, network: 'ltctest' }) }, /Expected BIP32Path, got String ".*"/);
         });
         it('should derive correctly from tprv', () => {
             deepStrictEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, network: 'ltctest' }), derivedNonHardenedNotNeutered);
         });
-        it('should derive correctly from tprv', () => {
+        it('should derive correctly all columns from tprv', () => {
             deepStrictEqual(derive({ extKey: tprv, path, hardenedChildren: false, count: 1, cols: 'all', network: 'ltctest' }), derivedNonHardenedNotNeuteredAllColumns);
         });
         it('should derive correctly from tpub', () => {
